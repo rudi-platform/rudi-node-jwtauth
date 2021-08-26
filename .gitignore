@@ -1,0 +1,20 @@
+# Config
+**/rudi_proxi_custom.ini
+**/rudi_portal_custom.ini
+
+# Libs
+**/node_modules
+
+# Logs
+**/logs
+
+# Zip
+**/*.zip
+**/*.gz
+
+# XLSX
+**/*.xls*
+
+# Keys
+**/*.pub
+**/*.prv
