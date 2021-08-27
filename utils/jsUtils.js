@@ -13,14 +13,16 @@ const dateTime = require('date-and-time')
 // -----------------------------------------------------------------------------
 // String
 // -----------------------------------------------------------------------------
-exports.toBase64 = (str) => this.convertEncoding(str, 'utf-8', 'base64url')
-exports.decodeBase64 = (data) => this.convertEncoding(data, 'base64url', 'utf-8')
+exports.toBase64 = (str) => this.convertEncoding(str, 'utf-8', 'base64')
+exports.toBase64url = (str) => this.convertEncoding(str, 'utf-8', 'base64url')
+exports.decodeBase64 = (data) => this.convertEncoding(data, 'base64', 'utf-8')
+exports.decodeBase64url = (data) => this.convertEncoding(data, 'base64url', 'utf-8')
 
 exports.convertEncoding = (data, fromEncoding, toEncoding) => {
   const fun = 'convertEncoding'
   try {
     let dataStr = data
-    if (typeof data === 'object') dataStr = JSON.stringify(data)
+    // if (typeof data === 'object') dataStr = JSON.stringify(data)
     return Buffer.from(dataStr, fromEncoding).toString(toEncoding)
   } catch (err) {
     this.consoleErr(mod, fun, err)

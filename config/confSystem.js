@@ -48,7 +48,7 @@ const _expires = 'expires'
 
 // Security section
 const SECURITY_SECTION = 'security'
-const _publicKeys = 'public_keys'
+const _publicKey = 'public_key'
 const _privateKey = 'private_key'
 
 // -----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ exports.LOG_LVL = getIniValue(LOG_SECTION, _logLevel)
 exports.LOG_EXP = getIniValue(LOG_SECTION, _expires)
 
 // Security
-exports.PUB_KEYS = getIniValue(SECURITY_SECTION, _publicKeys)
+exports.PUB_KEY = getIniValue(SECURITY_SECTION, _publicKey)
 exports.PRIV_KEY = getIniValue(SECURITY_SECTION, _privateKey)
 
 const fun = 'export'
@@ -132,11 +132,11 @@ const fun = 'export'
 utils.consoleLog(mod, fun, `APP_NAME: ${this.APP_NAME}`)
 utils.consoleLog(mod, fun, `LISTENING_ADDR: ${this.LISTENING_ADDR}`)
 utils.consoleLog(mod, fun, `LISTENING_PORT: ${this.LISTENING_PORT}`)
-utils.consoleLog(mod, fun, `OUT_LOG: ${this.OUT_LOG}`)
-utils.consoleLog(mod, fun, `LOG_LVL: ${this.LOG_LVL}`)
-utils.consoleLog(mod, fun, `LOG_EXP: ${this.LOG_EXP}`)
-utils.consoleLog(mod, fun, `DB_NAME: ${this.DB_NAME}`)
-utils.consoleLog(mod, fun, `DB_URL: ${this.DB_URL}`)
+// utils.consoleLog(mod, fun, `OUT_LOG: ${this.OUT_LOG}`)
+// utils.consoleLog(mod, fun, `LOG_LVL: ${this.LOG_LVL}`)
+// utils.consoleLog(mod, fun, `LOG_EXP: ${this.LOG_EXP}`)
+// utils.consoleLog(mod, fun, `DB_NAME: ${this.DB_NAME}`)
+// utils.consoleLog(mod, fun, `DB_URL: ${this.DB_URL}`)
 
 exports.getHost = () => {
   return `http://${this.LISTENING_ADDR}:${this.LISTENING_PORT}`

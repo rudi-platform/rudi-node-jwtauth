@@ -1,7 +1,7 @@
 'use strict'
 
-const { URL_JWT, URL_SUFFIX_REQUEST } = require("../config/confApi")
-const { forgeToken } = require("../handlers/jwtController")
+const { URL_JWT, URL_SUFFIX_FORGE, URL_SUFFIX_CHECK } = require('./config/confApi')
+const { forgeToken, checkToken } = require('./handlers/jwtController')
 
 const mod = 'routes'
 
@@ -14,8 +14,17 @@ exports.jwtRoutes = [
    */
   {
     method: 'POST',
-    url: `${URL_JWT}/${URL_SUFFIX_REQUEST}`,
+    url: `${URL_JWT}/${URL_SUFFIX_FORGE}`,
     // preHandler: logRequest,
     handler: forgeToken,
+  },
+  /**
+   * Simply test the JWT in the header
+   */
+  {
+    method: 'GET',
+    url: `${URL_JWT}/${URL_SUFFIX_CHECK}`,
+    // preHandler: logRequest,
+    handler: checkToken,
   },
 ]

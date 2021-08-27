@@ -10,6 +10,10 @@ const sys = require('./config/confSystem')
 
 const logConf = require('./config/confLogs')
 const log = require('./utils/logging')
+
+const { URL_PREFIX, URL_JWT } = require('./config/confApi')
+const { jwtRoutes } = require('./routes')
+
 // -----------------------------------------------------------------------------
 // External dependancies / init
 // -----------------------------------------------------------------------------
@@ -28,6 +32,41 @@ fastify.addHook('onRequest', (req, res, next) => {
   next()
 })
 
+
+// -----------------------------------------------------------------------------
+// ROUTES
+// -----------------------------------------------------------------------------
+
+// Declare a default route
+fastify.get('/', async (request, reply) => {
+  log.i(mod, 'routes', 'GET /')
+  return {
+    server: 'RUDI',
+  }
+})
+
+// Declare a default route
+fastify.get(URL_PREFIX, async (request, reply) => {
+  // request.log.info(`GET /api`)
+  log.i(mod, 'routes', `GET ${URL_PREFIX}`)
+  return {
+    RUDI: 'crypto',
+  }
+})
+
+// Declare a default route
+fastify.get(URL_JWT, async (request, reply) => {
+  log.i(mod, 'routes', `GET ${URL_JWT}`)
+  return {
+    'RUDI': 'JWT',
+  }
+})
+
+// Loop over each public route
+jwtRoutes.forEach((pubRoute, index) => {
+  fastify.route(pubRoute)
+  log.i(mod, 'routes', `Public route #${index} = ${pubRoute.method} ${pubRoute.url}`)
+})
 
 
 // -----------------------------------------------------------------------------

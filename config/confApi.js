@@ -2,16 +2,17 @@
 // -----------------------------------------------------------------------------
 // REQ URL
 // -----------------------------------------------------------------------------
-exports.URL_PREFIX = '/crypt'
+exports.URL_PREFIX = '/crypto'
 
 // -----------------------------------------------------------------------------
 // Public keys
 // -----------------------------------------------------------------------------
-exports.URL_KEYS = `${URL_PREFIX}/pub`
+exports.URL_KEYS = `${this.URL_PREFIX}/pub`
 
 // -----------------------------------------------------------------------------
 // JWT actions
 // -----------------------------------------------------------------------------
-exports.URL_JWT = `${URL_PREFIX}/jwt`
+exports.URL_JWT = `${this.URL_PREFIX}/jwt`
 
-exports.URL_SUFFIX_REQUEST = 'forge'
+exports.URL_SUFFIX_FORGE = 'forge'
+exports.URL_SUFFIX_CHECK = 'check'

@@ -5,7 +5,6 @@ const mod = 'jwtCtrl'
 // -----------------------------------------------------------------------------
 // External dependancies
 // -----------------------------------------------------------------------------
-const { boomify } = require('@hapi/boom')
 const { readFileSync } = require('fs')
 const { v4: uuidv4 } = require('uuid')
 const { parseKey, parsePrivateKey } = require('sshpk')
@@ -15,11 +14,18 @@ const { parseKey, parsePrivateKey } = require('sshpk')
 // -----------------------------------------------------------------------------
 const log = require('../utils/logging')
 
-const { PUB_KEYS, PRIV_KEY } = require('../config/confSystem')
-const { toBase64, isEmptyObject, beautify } = require('../utils/jsUtils')
+const { PRIV_KEY, PUB_KEY } = require('../config/confSystem')
+const {
+  beautify,
+  isEmptyObject,
+  toBase64url,
+  decodeBase64url,
+  convertEncoding,
+  nowEpochS,
+} = require('../utils/jsUtils')
 
 // -----------------------------------------------------------------------------
-// Controllers
+// Constants
 // -----------------------------------------------------------------------------
 
 // norm : https://www.iana.org/assignments/jwt/jwt.xhtml
@@ -29,6 +35,11 @@ const JWT_IAT = 'iat' // Issued At https://www.rfc-editor.org/rfc/rfc7519.html#s
 const JWT_APP = 'client_id' // https://www.rfc-editor.org/rfc/rfc6749.html#section-2.2
 const JWT_USR = 'sub' // Subject https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2
 
+const DEFAULT_EXP = 600
+// -----------------------------------------------------------------------------
+// Controllers
+// -----------------------------------------------------------------------------
+
 const ALGOS = {
   ed25519: {
     jwt: 'EdDSA',
@@ -36,8 +47,52 @@ const ALGOS = {
   },
 }
 
+exports.getJwtAlgo = (algo) => {
+  const fun = 'getJwtAlgo'
+  try {
+    switch (algo) {
+      case 'ed25519':
+      case 'sha512':
+      case 'EdDSA':
+        return 'EdDSA'
+      default:
+        throw Error(`Algo not recognized: '${algo}'`)
+    }
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
+  }
+}
+
+exports.getHashAlgo = (algo) => {
+  const fun = 'getHashAlgo'
+  try {
+    switch (algo) {
+      case 'ed25519':
+      case 'sha512':
+      case 'EdDSA':
+        return 'sha512'
+      default:
+        throw Error(`Algo not recognized: '${algo}'`)
+    }
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
+  }
+}
+
+/**
+ * Creates a JWT with incoming JSON as a payload
+ * If 'iat' (issued at) property is not found, it is automatically added to the payload
+ * with current Epoch time in seconds
+ * If 'exp' (expiration time) property is not found, it is automatically added to the
+ * payload with default value 600
+ * @param {*} req
+ * @param {*} reply
+ * @returns
+ */
 exports.forgeToken = async (req, reply) => {
-  const fun = 'getToken'
+  const fun = 'forgeToken'
   log.d(mod, fun, ``)
   try {
     const jwtPayload = req.body
@@ -50,10 +105,9 @@ exports.forgeToken = async (req, reply) => {
     if (!moduleId) throw new Error(`No ID was found for the app (property ${JWT_APP})`)
 
     // Identifying the (public) key type
-    const pubKeyPem = readFileSync(PUB_KEYS, 'ascii')
+    const pubKeyPem = readFileSync(PUB_KEY, 'ascii')
     const sslKey = parseKey(pubKeyPem)
     const keyType = sslKey.type
-    const algos = ALGOS[keyType]
     log.d(mod, fun, `pub: ${keyType}`)
 
     // Extracting the private key type
@@ -62,25 +116,94 @@ exports.forgeToken = async (req, reply) => {
     log.d(mod, fun, `prv: ${prvKey.comment}`)
 
     // Building the JWT header
+    const jwtAlgo = this.getJwtAlgo(keyType)
     const jwtHeader = {
       typ: 'JWT', // (optional)
-      alg: algos.jwt,
+      alg: jwtAlgo,
     }
+
+    // Adjusting the JWT payload
+    if(!jwtPayload[JWT_IAT]) jwtPayload[JWT_IAT] = nowEpochS()
+    if(!jwtPayload[JWT_EXP]) jwtPayload[JWT_EXP] = DEFAULT_EXP
 
     // Setting an ID to the JWT, if needed
     if (!jwtPayload.JWT_ID) jwtPayload.JWT_ID = uuidv4()
 
-    // Building the JWT signature
-    const data = toBase64(jwtHeader) + '.' + toBase64(jwtPayload)
-    const sign_buffer = prvKey.createSign(algos.sgn)
-    sign_buffer.update(data)
-    const signature = sign_buffer.sign()
+    // Building the data to sign
+    const headerBase64url = toBase64url(JSON.stringify(jwtHeader))
+    const payloadBase64url = toBase64url(JSON.stringify(jwtPayload))
+    const data = headerBase64url + '.' + payloadBase64url
 
-    // Building the final JWT 
-    const jwt = data + '.' + toBase64(signature)
+    // Building the JWT signature
+    const hashAlgo = this.getHashAlgo(keyType)
+    log.d(mod, fun, `hash algo: ${hashAlgo}`)
+    const sign_buffer = prvKey.createSign(hashAlgo)
+    sign_buffer.update(data)
+    const signatureBase64 = sign_buffer.sign()
+    const signatureBase64url = convertEncoding(signatureBase64.toString(), 'base64', 'base64url')
+    log.d(mod, fun, `base64url signature: ${signatureBase64url}`)
+
+    // Building the final JWT
+    const jwt = data + '.' + signatureBase64url
     return jwt
   } catch (err) {
     log.w(mod, fun, err)
-    throw boomify(err)
+    throw err
+  }
+}
+
+exports.checkToken = async (req, reply) => {
+  const fun = 'checkToken'
+  log.d(mod, fun, ``)
+  try {
+    const header = req.headers
+    // log.d(mod, fun, `${beautify(header)}`)
+    const auth = header.authorization
+    if (!auth)
+      throw new Error('Headers should include a JWT in the form "Authorization": Bearer <JWT>"')
+    const token = auth.substring(7)
+    // log.d(mod, fun, token)
+    const signIsValid =  await this.verifyToken(token)
+    return `JWT is ${signIsValid? '':'in'}valid`
+    // return 'ok'
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
+  }
+}
+
+exports.verifyToken = async (token) => {
+  const fun = 'checkToken'
+  log.d(mod, fun, `token: ${token}`)
+
+  try {
+    const [jwtHeaderBase64url, jwtPayloadBase64url, jwtSignatureBase64url] = token.split('.')
+
+    // Retrieve the public key
+    const pubKeyPem = readFileSync(PUB_KEY, 'ascii')
+    const sslKey = parseKey(pubKeyPem)
+
+    // Identify the signature hash algorithm from the JWT header alg property
+    const jwtHeader = JSON.parse(decodeBase64url(jwtHeaderBase64url))
+    log.d(mod, fun, `JWT algo: ${jwtHeader.alg}`)
+    const hashAlgo = this.getHashAlgo(jwtHeader.alg)
+    log.d(mod, fun, `hash algo: ${hashAlgo}`)
+
+    // Check if the token is still valid
+    const jwtPayload = JSON.parse(decodeBase64url(jwtPayloadBase64url))
+    const jwtIat = jwtPayload[JWT_IAT]
+    if(!jwtIat) throw new Error(`JWT payload requires the property '${JWT_IAT}'`)
+    const jwtExp = jwtPayload[JWT_EXP]
+    if(!jwtExp) throw new Error(`JWT payload requires the property '${JWT_EXP}'`)
+    if(nowEpochS()>jwtIat + jwtExp) throw new Error(`JWT expired: JWT issued at ${jwtIat}, expires after ${jwtExp}s, now is ${nowEpochS()}`)
+
+    // Check the signature
+    const verifier = sslKey.createVerify(hashAlgo)
+    verifier.update(`${jwtHeaderBase64url}.${jwtPayloadBase64url}`)
+    const signatureIsValid = verifier.verify(jwtSignatureBase64url, 'base64url')
+    return signatureIsValid
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
   }
 }
