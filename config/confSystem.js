@@ -20,10 +20,11 @@ utils.separateLogs()
 // -----------------------------------------------------------------------------
 
 // Conf files name
+const iniDir = '.ini'
 // - user conf
-const userConfFile = './_ini/custom.ini'
+const userConfFile = `./${iniDir}/custom.ini`
 // - default conf
-const defConfFile = './_ini/default.ini'
+const defConfFile = `./${iniDir}/default.ini`
 
 // Node Server section
 const SERVER_SECTION = 'server'
