@@ -1,5 +1,6 @@
 # Config
-**/*_custom.ini
+**/custom.ini
+**/*custom.ini
 
 # Libs
 **/node_modules
