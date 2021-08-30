@@ -40,21 +40,29 @@ const DEFAULT_EXP = 600
 // Controllers
 // -----------------------------------------------------------------------------
 
-const ALGOS = {
-  ed25519: {
-    jwt: 'EdDSA',
-    hash: 'sha512',
-  },
-}
-
+/**
+ * Retrieve the string that states which algorithm was used for the
+ * private/public key pair.
+ * see https://datatracker.ietf.org/doc/html/rfc7518#section-3.1
+ * @param {String} algo
+ * @returns
+ */
 exports.getJwtAlgo = (algo) => {
   const fun = 'getJwtAlgo'
   try {
     switch (algo) {
       case 'ed25519':
-      case 'sha512':
       case 'EdDSA':
         return 'EdDSA'
+      case 'HS256':
+      case 'ES256':
+      case 'RS256':
+      case 'PS256':
+      case 'HS512':
+      case 'ES512':
+      case 'RS512':
+      case 'PS512':
+        return algo
       default:
         throw Error(`Algo not recognized: '${algo}'`)
     }
@@ -64,12 +72,25 @@ exports.getJwtAlgo = (algo) => {
   }
 }
 
+/**
+ * Hash algo to be used to sign the JWT
+ * @param {String} algo
+ * @returns
+ */
 exports.getHashAlgo = (algo) => {
   const fun = 'getHashAlgo'
   try {
     switch (algo) {
+      case 'HS256':
+      case 'RS256':
+      case 'ES256':
+      case 'PS256':
+        return 'sha256'
+      case 'ES512':
+      case 'HS512':
+      case 'RS512':
+      case 'PS512':
       case 'ed25519':
-      case 'sha512':
       case 'EdDSA':
         return 'sha512'
       default:
@@ -123,8 +144,8 @@ exports.forgeToken = async (req, reply) => {
     }
 
     // Adjusting the JWT payload
-    if(!jwtPayload[JWT_IAT]) jwtPayload[JWT_IAT] = nowEpochS()
-    if(!jwtPayload[JWT_EXP]) jwtPayload[JWT_EXP] = DEFAULT_EXP
+    if (!jwtPayload[JWT_IAT]) jwtPayload[JWT_IAT] = nowEpochS()
+    if (!jwtPayload[JWT_EXP]) jwtPayload[JWT_EXP] = DEFAULT_EXP
 
     // Setting an ID to the JWT, if needed
     if (!jwtPayload.JWT_ID) jwtPayload.JWT_ID = uuidv4()
@@ -163,8 +184,8 @@ exports.checkToken = async (req, reply) => {
       throw new Error('Headers should include a JWT in the form "Authorization": Bearer <JWT>"')
     const token = auth.substring(7)
     // log.d(mod, fun, token)
-    const signIsValid =  await this.verifyToken(token)
-    return `JWT is ${signIsValid? '':'in'}valid`
+    const signIsValid = await this.verifyToken(token)
+    return `JWT is ${signIsValid ? '' : 'in'}valid`
     // return 'ok'
   } catch (err) {
     log.w(mod, fun, err)
@@ -192,10 +213,13 @@ exports.verifyToken = async (token) => {
     // Check if the token is still valid
     const jwtPayload = JSON.parse(decodeBase64url(jwtPayloadBase64url))
     const jwtIat = jwtPayload[JWT_IAT]
-    if(!jwtIat) throw new Error(`JWT payload requires the property '${JWT_IAT}'`)
+    if (!jwtIat) throw new Error(`JWT payload requires the property '${JWT_IAT}'`)
     const jwtExp = jwtPayload[JWT_EXP]
-    if(!jwtExp) throw new Error(`JWT payload requires the property '${JWT_EXP}'`)
-    if(nowEpochS()>jwtIat + jwtExp) throw new Error(`JWT expired: JWT issued at ${jwtIat}, expires after ${jwtExp}s, now is ${nowEpochS()}`)
+    if (!jwtExp) throw new Error(`JWT payload requires the property '${JWT_EXP}'`)
+    if (nowEpochS() > jwtIat + jwtExp)
+      throw new Error(
+        `JWT expired: JWT issued at ${jwtIat}, expires after ${jwtExp}s, now is ${nowEpochS()}`
+      )
 
     // Check the signature
     const verifier = sslKey.createVerify(hashAlgo)
