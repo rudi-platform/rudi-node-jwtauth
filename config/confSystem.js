@@ -23,9 +23,9 @@ utils.separateLogs()
 // - directory
 const iniDir = './0-ini'
 // - user conf path
-const userConfFile = `${iniDir}/custom.ini`
+const userConfFile = `${iniDir}/conf_custom.ini`
 // - default conf path
-const defConfFile = `${iniDir}/default.ini`
+const defConfFile = `${iniDir}/conf_default.ini`
 
 // Node Server section
 const SERVER_SECTION = 'server'
