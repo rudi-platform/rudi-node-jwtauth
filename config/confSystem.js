@@ -19,17 +19,24 @@ utils.separateLogs()
 // Constants: local ini file configuration settings
 // -----------------------------------------------------------------------------
 
-// Conf files name
-const iniDir = '.ini'
-// - user conf
-const userConfFile = `./${iniDir}/custom.ini`
-// - default conf
-const defConfFile = `./${iniDir}/default.ini`
+// Conf files
+// - directory
+const iniDir = './0-ini'
+// - user conf path
+const userConfFile = `${iniDir}/custom.ini`
+// - default conf path
+const defConfFile = `${iniDir}/default.ini`
 
 // Node Server section
 const SERVER_SECTION = 'server'
 const _serverAddress = 'listening_address'
 const _serverPort = 'listening_port'
+
+// RUDI producer API module section
+const PROD_API_SECTION = 'rudi_prod_api'
+const _prodApiAddress = 'address'
+const _prodApiPort = 'port'
+const _prodApiSuffix = 'suffix'
 
 // DB section
 const DB_SECTION = 'database'
@@ -49,33 +56,9 @@ const _expires = 'expires'
 
 // Security section
 const SECURITY_SECTION = 'security'
-const _publicKey = 'public_key'
-const _privateKey = 'private_key'
-
-// -----------------------------------------------------------------------------
-// Constants: default configuration
-// -----------------------------------------------------------------------------
-const DEFAULT_CONF = {
-  // Node.js server
-  [SERVER_SECTION]: {
-    [_serverAddress]: '0.0.0.0',
-    [_serverPort]: 3003,
-  },
-  // DB
-  [DB_SECTION]: {
-    [_dbUrl]: 'mongodb://127.0.0.1/',
-    [_dbName]: 'rudi_prod',
-    [_dbPort]: 27017,
-  },
-  // Logs
-  [LOG_SECTION]: {
-    [_appName]: 'rudiProxy',
-    [_logDir]: './logs',
-    [_logFileName]: 'rudiProxy.log',
-    [_logLevel]: 'debug',
-    [_expires]: '1d',
-  },
-}
+const _profiles = 'profiles'
+const _expTime = 'exp_time'
+exports.DEFAULT_EXP = 6000
 
 // -----------------------------------------------------------------------------
 // Constants: user and local configuration
@@ -98,7 +81,9 @@ function getIniValue(section, field) {
   const userValue = utils.quietAccess(USER_CONF[section], field)
   const localValue = utils.quietAccess(LOCAL_CONF[section], field)
 
-  return userValue || localValue || DEFAULT_CONF[section][field]
+  if (userValue != utils.NOT_FOUND) return userValue
+  if (localValue != utils.NOT_FOUND) return localValue
+  return utils.NOT_FOUND
 }
 
 // -----------------------------------------------------------------------------
@@ -108,6 +93,12 @@ function getIniValue(section, field) {
 // Server
 exports.LISTENING_ADDR = getIniValue(SERVER_SECTION, _serverAddress)
 exports.LISTENING_PORT = getIniValue(SERVER_SECTION, _serverPort)
+
+// RUDI API server
+const PROD_API_ADDR = getIniValue(PROD_API_SECTION, _prodApiAddress)
+const PROD_API_PORT = getIniValue(PROD_API_SECTION, _prodApiPort)
+exports.PROD_API_PREFIX = getIniValue(PROD_API_SECTION, _prodApiSuffix)
+exports.PROD_API_SERVER = 'http://' + PROD_API_ADDR + ':' + PROD_API_PORT + '/' + this.PROD_API_PREFIX
 
 // DB
 exports.DB_NAME = getIniValue(DB_SECTION, _dbName)
@@ -124,8 +115,12 @@ exports.LOG_LVL = getIniValue(LOG_SECTION, _logLevel)
 exports.LOG_EXP = getIniValue(LOG_SECTION, _expires)
 
 // Security
-exports.PUB_KEY = getIniValue(SECURITY_SECTION, _publicKey)
-exports.PRIV_KEY = getIniValue(SECURITY_SECTION, _privateKey)
+const profileList = getIniValue(SECURITY_SECTION, _profiles)
+exports.PROFILES = fa.readIniFile(profileList)
+exports.EXP_TIME = fa.readIniFile(SECURITY_SECTION, _expTime) || this.DEFAULT_EXP
+
+exports.PUB_KEY = 'pub_key'
+exports.PRV_KEY = 'prv_key'
 
 const fun = 'export'
 // const now = utils.nowLocaleFormatted()

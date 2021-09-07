@@ -7,12 +7,13 @@ const mod = 'main'
 // -----------------------------------------------------------------------------
 const utils = require('./utils/jsUtils')
 const sys = require('./config/confSystem')
-
 const logConf = require('./config/confLogs')
+
 const log = require('./utils/logging')
 
 const { URL_PREFIX, URL_JWT } = require('./config/confApi')
-const { jwtRoutes } = require('./routes')
+const { privateRoutes } = require('./routes/routes')
+const { createRudiHttpError } = require('./utils/errors')
 
 // -----------------------------------------------------------------------------
 // External dependancies / init
@@ -27,11 +28,29 @@ const fastify = require('fastify')({
   },
   ignoreTrailingSlash: true,
 })
+
+fastify.setErrorHandler((error, request, reply) => {
+  const fun = 'finalErrorHandler'
+  try {
+    log.e(mod, fun, error)
+    const rudiHttpError = createRudiHttpError(error.statusCode, error.message)
+    reply.code(rudiHttpError.statusCode).send(rudiHttpError)
+  } catch (uncaughtErr) {
+    log.w(mod, fun, uncaughtErr)
+    const rudiHttpError = createRudiHttpError(0, uncaughtErr.message)
+    reply.code(rudiHttpError.statusCode).send(rudiHttpError)
+  }
+  log.d(mod, fun, 'done')
+})
+
 fastify.addHook('onRequest', (req, res, next) => {
   log.logRequest(req)
   next()
 })
-
+fastify.addHook('onRequest', (req, res, next) => {
+  log.logRequest(req)
+  next()
+})
 
 // -----------------------------------------------------------------------------
 // ROUTES
@@ -58,16 +77,15 @@ fastify.get(URL_PREFIX, async (request, reply) => {
 fastify.get(URL_JWT, async (request, reply) => {
   log.i(mod, 'routes', `GET ${URL_JWT}`)
   return {
-    'RUDI': 'JWT',
+    RUDI: 'JWT',
   }
 })
 
 // Loop over each public route
-jwtRoutes.forEach((pubRoute, index) => {
+privateRoutes.forEach((pubRoute, index) => {
   fastify.route(pubRoute)
   log.i(mod, 'routes', `Public route #${index} = ${pubRoute.method} ${pubRoute.url}`)
 })
-
 
 // -----------------------------------------------------------------------------
 // SERVER

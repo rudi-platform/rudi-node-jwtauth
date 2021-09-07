@@ -14,7 +14,7 @@ const { parseKey, parsePrivateKey } = require('sshpk')
 // -----------------------------------------------------------------------------
 const log = require('../utils/logging')
 
-const { PRIV_KEY, PUB_KEY } = require('../config/confSystem')
+const { PRV_KEY, PUB_KEY, PROFILES, DEFAULT_EXP } = require('../config/confSystem')
 const {
   beautify,
   isEmptyObject,
@@ -22,6 +22,8 @@ const {
   decodeBase64url,
   convertEncoding,
   nowEpochS,
+  dateEpochSToIso,
+  nowISO,
 } = require('../utils/jsUtils')
 
 // -----------------------------------------------------------------------------
@@ -29,13 +31,15 @@ const {
 // -----------------------------------------------------------------------------
 
 // norm : https://www.iana.org/assignments/jwt/jwt.xhtml
-const JWT_ID = 'jti' // https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.7
-const JWT_EXP = 'exp' // Expiration Time https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4
-const JWT_IAT = 'iat' // Issued At https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.6
-const JWT_APP = 'client_id' // https://www.rfc-editor.org/rfc/rfc6749.html#section-2.2
-const JWT_USR = 'sub' // Subject https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2
+exports.JWT_ID = 'jti' // https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.7
+exports.JWT_EXP = 'exp' // Expiration Time https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4
+exports.JWT_SUB = 'sub' // Subject https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2
+exports.JWT_IAT = 'iat' // Issued At https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.6
+exports.JWT_CLIENT = 'client_id' // https://www.rfc-editor.org/rfc/rfc6749.html#section-2.2
 
-const DEFAULT_EXP = 600
+exports.REQ_MTD = 'req_mtd'
+exports.REQ_URL = 'req_url'
+
 // -----------------------------------------------------------------------------
 // Controllers
 // -----------------------------------------------------------------------------
@@ -117,23 +121,28 @@ exports.forgeToken = async (req, reply) => {
   log.d(mod, fun, ``)
   try {
     const jwtPayload = req.body
+    const jwt = this.createRudiApiToken(jwtPayload)
+    return jwt
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
+  }
+}
 
+exports.createRudiApiToken = (jwtPayload) => {
+  const fun = 'createRudiApiToken'
+  log.d(mod, fun, ``)
+  try {
     if (!jwtPayload || isEmptyObject(jwtPayload))
       throw new Error(`Incoming JSON should not be null`)
 
-    // Identifying the client / app
-    const moduleId = jwtPayload[JWT_APP]
-    if (!moduleId) throw new Error(`No ID was found for the app (property ${JWT_APP})`)
+    // Identifying the requester asking for a token
+    const subject = jwtPayload[this.JWT_SUB]
+    if (!subject) throw new Error(`No ID was found for the requester (property '${this.JWT_SUB}')`)
 
-    // Identifying the (public) key type
-    const pubKeyPem = readFileSync(PUB_KEY, 'ascii')
-    const sslKey = parseKey(pubKeyPem)
-    const keyType = sslKey.type
-    log.d(mod, fun, `pub: ${keyType}`)
-
-    // Extracting the private key type
-    const prvKeyPem = readFileSync(PRIV_KEY, 'ascii')
-    const prvKey = parsePrivateKey(prvKeyPem)
+    const keyInfo = getKeyInfo(subject)
+    const keyType = keyInfo[KTYP]
+    const prvKey = keyInfo[PRVK]
     log.d(mod, fun, `prv: ${prvKey.comment}`)
 
     // Building the JWT header
@@ -144,11 +153,11 @@ exports.forgeToken = async (req, reply) => {
     }
 
     // Adjusting the JWT payload
-    if (!jwtPayload[JWT_IAT]) jwtPayload[JWT_IAT] = nowEpochS()
-    if (!jwtPayload[JWT_EXP]) jwtPayload[JWT_EXP] = DEFAULT_EXP
+    if (!jwtPayload[this.JWT_IAT]) jwtPayload[this.JWT_IAT] = nowEpochS()
+    if (!jwtPayload[this.JWT_EXP]) jwtPayload[this.JWT_EXP] = DEFAULT_EXP
 
     // Setting an ID to the JWT, if needed
-    if (!jwtPayload.JWT_ID) jwtPayload.JWT_ID = uuidv4()
+    if (!jwtPayload[this.JWT_ID]) jwtPayload[this.JWT_ID] = uuidv4()
 
     // Building the data to sign
     const headerBase64url = toBase64url(JSON.stringify(jwtHeader))
@@ -162,11 +171,60 @@ exports.forgeToken = async (req, reply) => {
     sign_buffer.update(data)
     const signatureBase64 = sign_buffer.sign()
     const signatureBase64url = convertEncoding(signatureBase64.toString(), 'base64', 'base64url')
-    log.d(mod, fun, `base64url signature: ${signatureBase64url}`)
+    // log.d(mod, fun, `base64url signature: ${signatureBase64url}`)
 
     // Building the final JWT
     const jwt = data + '.' + signatureBase64url
     return jwt
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
+  }
+}
+
+const KEYS = {}
+const KTYP = 'ktyp'
+const PRVK = 'prvk'
+const PUBK = 'pubk'
+
+/**
+ * Returns both the private key and the algo
+ * @param {string} subject
+ */
+function getKeyInfo(subject) {
+  const fun = 'getKeyInfo'
+  try {
+    // Retrieving stored info
+    if (!!KEYS[subject]) return KEYS[subject]
+
+    // Extracting info
+    const subjectInfo = PROFILES[subject]
+    if (!subjectInfo) throw new Error(`Subject not found in profiles: '${subject}'`)
+    const pubKeyPath = subjectInfo[PUB_KEY]
+    if (!pubKeyPath)
+      throw new Error(`Property ${PUB_KEY} not found in profiles for subject: '${subject}'`)
+    const prvKeyPath = subjectInfo[PRV_KEY]
+    if (!prvKeyPath)
+      throw new Error(`Property ${PRV_KEY} not found in profiles for subject: '${subject}'`)
+
+    // Identifying the (public) key type
+    const pubKeyPem = readFileSync(pubKeyPath, 'ascii')
+    const pubKey = parseKey(pubKeyPem)
+    const keyType = pubKey.type
+    log.d(mod, fun, `pub: ${keyType}`)
+
+    // Extracting the private key
+    const prvKeyPem = readFileSync(prvKeyPath, 'ascii')
+    const prvKey = parsePrivateKey(prvKeyPem)
+
+    // Storing key info
+    const keyInfos = {
+      [KTYP]: keyType,
+      [PUBK]: pubKey,
+      [PRVK]: prvKey,
+    }
+    KEYS[subject] = keyInfos
+    return keyInfos
   } catch (err) {
     log.w(mod, fun, err)
     throw err
@@ -194,15 +252,11 @@ exports.checkToken = async (req, reply) => {
 }
 
 exports.verifyToken = async (token) => {
-  const fun = 'checkToken'
-  log.d(mod, fun, `token: ${token}`)
+  const fun = 'verifyToken'
+  log.d(mod, fun, ``)
 
   try {
     const [jwtHeaderBase64url, jwtPayloadBase64url, jwtSignatureBase64url] = token.split('.')
-
-    // Retrieve the public key
-    const pubKeyPem = readFileSync(PUB_KEY, 'ascii')
-    const sslKey = parseKey(pubKeyPem)
 
     // Identify the signature hash algorithm from the JWT header alg property
     const jwtHeader = JSON.parse(decodeBase64url(jwtHeaderBase64url))
@@ -212,17 +266,23 @@ exports.verifyToken = async (token) => {
 
     // Check if the token is still valid
     const jwtPayload = JSON.parse(decodeBase64url(jwtPayloadBase64url))
-    const jwtIat = jwtPayload[JWT_IAT]
-    if (!jwtIat) throw new Error(`JWT payload requires the property '${JWT_IAT}'`)
-    const jwtExp = jwtPayload[JWT_EXP]
-    if (!jwtExp) throw new Error(`JWT payload requires the property '${JWT_EXP}'`)
-    if (nowEpochS() > jwtIat + jwtExp)
+    const jwtExp = jwtPayload[this.JWT_EXP]
+    if (!jwtExp) throw new Error(`JWT payload requires the property '${this.JWT_EXP}'`)
+    if (nowEpochS() > jwtExp)
       throw new Error(
-        `JWT expired: JWT issued at ${jwtIat}, expires after ${jwtExp}s, now is ${nowEpochS()}`
+        `JWT expired: JWT expires after ${dateEpochSToIso(jwtExp)},now is ${nowISO()}`
       )
 
+    // Identify the subject
+    const subject = jwtPayload[this.JWT_SUB]
+    if (!subject) throw new Error(`No ID was found for the requester (property '${this.JWT_SUB}')`)
+
+    // Retrieve the public key
+    const keyInfo = getKeyInfo(subject)
+    const pubKey = keyInfo[PUBK]
+
     // Check the signature
-    const verifier = sslKey.createVerify(hashAlgo)
+    const verifier = pubKey.createVerify(hashAlgo)
     verifier.update(`${jwtHeaderBase64url}.${jwtPayloadBase64url}`)
     const signatureIsValid = verifier.verify(jwtSignatureBase64url, 'base64url')
     return signatureIsValid

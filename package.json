@@ -1,5 +1,5 @@
 {
-  "name": "rudi-crypto",
+  "name": "rudi-api-client",
   "version": "1.0.0",
   "description": "JWT creation and files encryption",
   "main": "./_main.js",
@@ -19,6 +19,7 @@
   "author": "olivier.martineau@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
     "date-and-time": "^2.0.0",
     "fastify": "^3.20.2",
     "ini": "^2.0.0",

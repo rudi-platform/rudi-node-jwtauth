@@ -106,11 +106,12 @@ exports.isNotEmptyObject = (obj) => {
   return obj && Object.keys(obj).length > 0
 }
 
+exports.NOT_FOUND = '!_not_found_!'
 exports.quietAccess = (obj, prop) => {
   try {
     return obj[prop]
   } catch {
-    return {}
+    return this.NOT_FOUND
   }
 }
 
