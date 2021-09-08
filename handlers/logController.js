@@ -11,7 +11,7 @@ const { readFileSync } = require('fs')
 // Internal dependencies
 // -----------------------------------------------------------------------------
 const log = require('../utils/logging')
-const { APP_NAME, LOG_DIR } = require('../config/confSystem')
+const { LOG_DIR, SYMLINK_NAME } = require('../config/confSystem')
 
 // -----------------------------------------------------------------------------
 // Controllers
@@ -19,7 +19,7 @@ const { APP_NAME, LOG_DIR } = require('../config/confSystem')
 exports.getLogs = (req, reply) => {
   const fun = 'getLogs'
   try {
-    const logFile = `${LOG_DIR}/${APP_NAME}-current.log`
+    const logFile = `${LOG_DIR}/${SYMLINK_NAME}`
     const logs = readFileSync(logFile)
     return logs
   } catch (err) {
