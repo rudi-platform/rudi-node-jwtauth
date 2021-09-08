@@ -25,6 +25,7 @@ const {
   dateEpochSToIso,
   nowISO,
 } = require('../utils/jsUtils')
+const { NotFoundError } = require('../utils/errors')
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -199,13 +200,16 @@ function getKeyInfo(subject) {
 
     // Extracting info
     const subjectInfo = PROFILES[subject]
-    if (!subjectInfo) throw new Error(`Subject not found in profiles: '${subject}'`)
+    if (!subjectInfo)
+      throw new NotFoundError(
+        `Subject '${subject}' not found in profiles: ${Object.keys(PROFILES)}`
+      )
     const pubKeyPath = subjectInfo[PUB_KEY]
     if (!pubKeyPath)
-      throw new Error(`Property ${PUB_KEY} not found in profiles for subject: '${subject}'`)
+      throw new NotFoundError(`Property ${PUB_KEY} not found in profiles for subject: '${subject}'`)
     const prvKeyPath = subjectInfo[PRV_KEY]
     if (!prvKeyPath)
-      throw new Error(`Property ${PRV_KEY} not found in profiles for subject: '${subject}'`)
+      throw new NotFoundError(`Property ${PRV_KEY} not found in profiles for subject: '${subject}'`)
 
     // Identifying the (public) key type
     const pubKeyPem = readFileSync(pubKeyPath, 'ascii')

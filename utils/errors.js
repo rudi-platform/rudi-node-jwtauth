@@ -80,12 +80,6 @@ class InternalServerError extends RudiHttpError {
   }
 }
 
-class ParameterExpected extends InternalServerError {
-  constructor(fun, param) {
-    super(`${msg.parameterExpected(fun, param)}`)
-  }
-}
-
 class NotImplementedError extends RudiHttpError {
   constructor(errMessage) {
     super(
@@ -129,7 +123,6 @@ module.exports = {
   MethodNotAllowedError,
   NotAcceptableError,
   InternalServerError,
-  ParameterExpected,
   NotImplementedError,
   createRudiHttpError,
 }
