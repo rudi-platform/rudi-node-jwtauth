@@ -87,40 +87,40 @@ const Colors = {
 // const DEBUG = 'DEBUG'
 
 exports.e = (mod, fun, msg) => {
+  const logLevel = 'error'
   logger.error(displayStr(mod, fun, msg))
   // displayFunc(ERROR, fun, msg)
-  const logLevel = 'error'
   // addLogEntry(logLevel, mod, fun, msg)
 }
 
 exports.w = (mod, fun, msg) => {
+  const logLevel = 'warn'
   logger.warn(displayStr(mod, fun, msg))
 
   // if (LOG_LVL < levels.warning) return
   // displayFunc(WARNING, fun, msg)
-  const logLevel = 'warn'
   // addLogEntry(logLevel, mod, fun, msg)
 }
 
 exports.i = (mod, fun, msg) => {
+  const logLevel = 'info'
   logger.info(displayStr(mod, fun, msg))
   // if (LOG_LVL < levels.info) return
   // displayFunc(INFO, fun, msg)
-  const logLevel = 'info'
   // addLogEntry(logLevel, mod, fun, msg)
 }
 
 exports.v = (mod, fun, msg) => {
+  const logLevel = 'verbose'
   logger.verbose(displayStr(mod, fun, msg))
   // if (LOG_LVL < levels.verbose) return
   // displayFunc(VERBOSE, fun, msg)
-  const logLevel = 'verbose'
   // addLogEntry(logLevel, mod, fun, msg)
 }
 
 exports.d = (mod, fun, msg) => {
-  logger.debug(displayStr(mod, fun, msg))
   const logLevel = 'debug'
+  logger.debug(displayStr(mod, fun, msg))
   // addLogEntry(logLevel, mod, fun, msg)
 }
 

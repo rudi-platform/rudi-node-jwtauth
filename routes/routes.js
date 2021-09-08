@@ -6,9 +6,11 @@ const {
   URL_SUFFIX_CHECK,
   URL_REDIRECT,
   SUFFIX_REDIRECT,
+  URL_LOGS,
 } = require('../config/confApi')
 const { URL_PREFIX } = require('../config/confApi')
 const { forgeToken, checkToken } = require('../handlers/jwtController')
+const { getLogs } = require('../handlers/logController')
 const { redirectReq } = require('../handlers/redirectController')
 
 const mod = 'routes'
@@ -64,5 +66,14 @@ exports.privateRoutes = [
     url: `${URL_REDIRECT}/:${SUFFIX_REDIRECT}`,
     // preHandler: logRequest,
     handler: redirectReq,
+  },
+
+  // -----------------------------------------------------------------------------
+  // Logs
+  // -----------------------------------------------------------------------------
+  {
+    method: 'GET',
+    url: URL_LOGS,
+    handler: getLogs,
   },
 ]

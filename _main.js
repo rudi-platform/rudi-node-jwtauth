@@ -14,6 +14,7 @@ const log = require('./utils/logging')
 const { URL_PREFIX, URL_JWT } = require('./config/confApi')
 const { privateRoutes } = require('./routes/routes')
 const { createRudiHttpError } = require('./utils/errors')
+const { getAppHash, getGitHash } = require('./handlers/sysController')
 
 // -----------------------------------------------------------------------------
 // External dependancies / init
@@ -106,6 +107,11 @@ try {
   start()
     .then(() => {
       log.i(mod, 'server', 'Ready')
+      const appHash = getAppHash()
+      const gitHash = getGitHash()
+      const hashMsg = appHash===gitHash?`Application version '${appHash}'`:`App version '${appHash}' | Git version: '${gitHash}''`
+      log.i(mod, 'app', hashMsg)
+      utils.separateLogs('Init OK')
     })
     .catch((err) => log.e(mod, 'server', `Crashed: ${err}`))
 } catch (uncaught) {

@@ -21,3 +21,8 @@ exports.URL_SUFFIX_CHECK = 'check'
 // -----------------------------------------------------------------------------
 exports.URL_REDIRECT = `${this.URL_PREFIX}/redirect`
 exports.SUFFIX_REDIRECT = `dest_url`
+
+// -----------------------------------------------------------------------------
+// Logs
+// -----------------------------------------------------------------------------
+exports.URL_LOGS = `${this.URL_PREFIX}/logs`

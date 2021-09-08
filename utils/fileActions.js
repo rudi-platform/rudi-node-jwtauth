@@ -22,6 +22,7 @@ exports.readIniFile = (confFile) => {
     const conf = ini.parse(fileContent)
     return conf
   } catch (err) {
-    utils.consoleErr(mod, fun, `${err}`)
+    utils.consoleErr(mod, fun, `Couldn't read file '${confFile}': ${err}`)
+    return false
   }
 }
