@@ -116,7 +116,7 @@ exports.LOG_EXP = getIniValue(LOG_SECTION, _expires)
 
 // Security
 const profileList = getIniValue(SECURITY_SECTION, _profiles)
-exports.PROFILES = fa.readIniFile(profileList, true)
+exports.PROFILES = fa.readIniFile(profileList)
 exports.EXP_TIME = getIniValue(SECURITY_SECTION, _expTime) || this.DEFAULT_EXP
 
 exports.PUB_KEY = 'pub_key'
