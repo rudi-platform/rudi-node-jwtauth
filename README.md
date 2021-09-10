@@ -1,11 +1,10 @@
 # RUDI producer node: JWT creation module
-### _Create JWT for sending requests to the RUDI Producer API/proxy module_
+*Create JWT for sending requests to the RUDI Producer API/proxy module*
 ##### Author: Olivier Martineau (olivier.martineau@irisa.fr)
 
 
 ----
 ## Configuration
-----
 
 Configuration files can be found in the **"0-ini" directory**.
 - **"0-ini/conf_default.ini"**: default configuration and use examples
@@ -17,15 +16,15 @@ This subject and the associated public key must be equally defined on the side o
 
 ---
 ## API to use this module
----
+
 ### *JWT creation / verification*
-- `POST /crypto/jwt/forge`
-    - **exp**: token expiration date in Epoch seconds
-    - **jti**: token identifier (preferably UUIDv4)
-    - **sub**: requester, ie API client that sends the HTTP request
-    - **req_mtd**: http method used for the request
-    - **req_url**: url of the request
-    - **client_id**: (optional) identifier of the logged user
+- `POST /crypto/jwt/forge` Create a JWT with the following information (to be included in the body of the request as a JSON)
+    - `exp`: token expiration date in Epoch seconds
+    - `jti`: token identifier (preferably UUIDv4)
+    - `sub`: requester, ie API client that sends the HTTP request
+    - `req_mtd`: http method used for the request
+    - `req_url`: url of the request
+    - `client_id`: (optional) identifier of the logged user
 
 - `GET /crypto/jwt/check`
 Check the validity of the JWT placed in header (`"Authentification": Bearer <token>`)
@@ -42,15 +41,19 @@ The following routes redirect `GET/POST/PUT/DELETE` requests to the destination 
 - `PUT /crypto/redirect/<destination_url>`
 - `DELETE /crypto/redirect/<destination_url>`
 
-#### examples
-    GET http://127.0.0.1:4000/crypto/redirect/resources?sort=-global_id 
-#### returns the result of 
-    GET http://127.0.0.1:3000/api/admin/resources?sort=-global_id
+#### Examples:
+> GET http://127.0.0.1:4000/crypto/redirect/resources?sort=-global_id 
+
+returns the result of 
+> GET http://127.0.0.1:3000/api/admin/resources?sort=-global_id
+
 In a similar way,
 
-    GET http://127.0.0.1:4000/crypto/redirect/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33 
-#### returns the result of 
-    GET http://127.0.0.1:3000/api/admin/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33
+> GET http://127.0.0.1:4000/crypto/redirect/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33 
+
+returns the result of 
+
+ > GET http://127.0.0.1:3000/api/admin/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33
 
 
 ---
@@ -58,6 +61,5 @@ In a similar way,
 
 - `GET /crypto/logs`
 Get logs
-
 - `DELETE /crypto/logs`
 Clear logs
