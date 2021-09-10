@@ -5,7 +5,7 @@ const mod = 'logCtrl'
 // -----------------------------------------------------------------------------
 // External dependencies
 // -----------------------------------------------------------------------------
-const { readFileSync } = require('fs')
+const { readFileSync, unlinkSync, truncateSync } = require('fs')
 
 // -----------------------------------------------------------------------------
 // Internal dependencies
@@ -22,6 +22,17 @@ exports.getLogs = (req, reply) => {
     const logFile = `${LOG_DIR}/${SYMLINK_NAME}`
     const logs = readFileSync(logFile)
     return logs
+  } catch (err) {
+    log.w(mod, fun, err)
+    throw err
+  }
+}
+exports.clearLogs = (req, reply) => {
+  const fun = 'clearLogs'
+  try {
+    const logFile = `${LOG_DIR}/${SYMLINK_NAME}`
+    truncateSync(logFile, 0)
+    return 'Log file cleared'
   } catch (err) {
     log.w(mod, fun, err)
     throw err

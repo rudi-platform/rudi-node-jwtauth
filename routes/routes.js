@@ -10,7 +10,7 @@ const {
 } = require('../config/confApi')
 const { URL_PREFIX } = require('../config/confApi')
 const { forgeToken, checkToken } = require('../handlers/jwtController')
-const { getLogs } = require('../handlers/logController')
+const { getLogs, clearLogs } = require('../handlers/logController')
 const { redirectReq } = require('../handlers/redirectController')
 
 const mod = 'routes'
@@ -37,6 +37,12 @@ exports.privateRoutes = [
     // preHandler: logRequest,
     handler: checkToken,
   },
+  {
+    method: 'POST',
+    url: `${URL_JWT}/${URL_SUFFIX_CHECK}`,
+    // preHandler: logRequest,
+    handler: checkToken,
+  },
   // -----------------------------------------------------------------------------
   // Redirections
   // -----------------------------------------------------------------------------
@@ -45,25 +51,25 @@ exports.privateRoutes = [
    */
   {
     method: 'GET',
-    url: `${URL_REDIRECT}/:${SUFFIX_REDIRECT}`,
+    url: `${URL_REDIRECT}/${SUFFIX_REDIRECT}`,
     // preHandler: logRequest,
     handler: redirectReq,
   },
   {
     method: 'POST',
-    url: `${URL_REDIRECT}/:${SUFFIX_REDIRECT}`,
+    url: `${URL_REDIRECT}/${SUFFIX_REDIRECT}`,
     // preHandler: logRequest,
     handler: redirectReq,
   },
   {
     method: 'PUT',
-    url: `${URL_REDIRECT}/:${SUFFIX_REDIRECT}`,
+    url: `${URL_REDIRECT}/${SUFFIX_REDIRECT}`,
     // preHandler: logRequest,
     handler: redirectReq,
   },
   {
     method: 'DELETE',
-    url: `${URL_REDIRECT}/:${SUFFIX_REDIRECT}`,
+    url: `${URL_REDIRECT}/${SUFFIX_REDIRECT}`,
     // preHandler: logRequest,
     handler: redirectReq,
   },
@@ -75,5 +81,10 @@ exports.privateRoutes = [
     method: 'GET',
     url: URL_LOGS,
     handler: getLogs,
+  },
+  {
+    method: 'DELETE',
+    url: URL_LOGS,
+    handler: clearLogs,
   },
 ]

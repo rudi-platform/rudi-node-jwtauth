@@ -239,15 +239,23 @@ exports.checkToken = async (req, reply) => {
   const fun = 'checkToken'
   log.d(mod, fun, ``)
   try {
-    const header = req.headers
-    // log.d(mod, fun, `${beautify(header)}`)
-    const auth = header.authorization
-    if (!auth)
-      throw new Error('Headers should include a JWT in the form "Authorization": Bearer <JWT>"')
-    const token = auth.substring(7)
+    const method = req.context.config.method
+    log.d(mod, fun, method)
+    let token
+    if (method.toUpperCase() == 'POST') token = req.body
+    else {
+      const header = req.headers
+
+      const auth = header.authorization
+      if (!auth)
+        throw new Error('Headers should include a JWT in the form "Authorization": Bearer <JWT>"')
+      token = auth.substring(7)
+    }
     // log.d(mod, fun, token)
     const signIsValid = await this.verifyToken(token)
-    return `JWT is ${signIsValid ? '' : 'in'}valid`
+    const returnMsg = `JWT is ${signIsValid ? '' : 'in'}valid`
+    log.d(mod, fun, returnMsg)
+    return returnMsg
     // return 'ok'
   } catch (err) {
     log.w(mod, fun, err)

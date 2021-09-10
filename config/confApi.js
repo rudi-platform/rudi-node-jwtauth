@@ -20,7 +20,7 @@ exports.URL_SUFFIX_CHECK = 'check'
 // Redirections
 // -----------------------------------------------------------------------------
 exports.URL_REDIRECT = `${this.URL_PREFIX}/redirect`
-exports.SUFFIX_REDIRECT = `dest_url`
+exports.SUFFIX_REDIRECT = `*`
 
 // -----------------------------------------------------------------------------
 // Logs

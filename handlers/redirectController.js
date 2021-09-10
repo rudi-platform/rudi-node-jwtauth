@@ -43,15 +43,17 @@ exports.redirectReq = async (req, reply) => {
 
     // Extracting the parameters
     const method = req.context.config.method
-    const urlSuffix = req.params[SUFFIX_REDIRECT]
+    const url = req.raw.url
+    const redirectedUrlSuffix = req.raw.url.substring(URL_REDIRECT.length)
     const body = req.body
+    log.d(mod, fun, beautify(req.raw.url))
+    log.d(mod, fun, beautify(redirectedUrlSuffix))
 
-    const redirectUrl = PROD_API_SERVER + '/' + urlSuffix
-    const partialUrl = '/' + PROD_API_PREFIX + '/' + urlSuffix
+    const redirectUrl = PROD_API_SERVER +  redirectedUrlSuffix
+    const partialUrl = '/' + PROD_API_PREFIX +  redirectedUrlSuffix
+    log.d(mod, fun, `redirected request: ${method} ${redirectUrl}`)
 
-    log.d(mod, fun, `method: ${method}`)
-    log.d(mod, fun, `url: ${redirectUrl}`)
-    log.d(mod, fun, `body: ${body}`)
+    // log.d(mod, fun, `body: ${body}`)
 
     const subject = req.headers.sub || APP_NAME
     const clientId = req.headers.client_id || v4()
@@ -66,7 +68,7 @@ exports.redirectReq = async (req, reply) => {
       [REQ_URL]: partialUrl,
     }
     const jwt = createRudiApiToken(jwtPayload)
-    log.d(mod, fun, `jwt: ${jwt}`)
+    // log.d(mod, fun, `jwt: ${jwt}`)
 
     // Creating the header
     const reqOpts = {
@@ -82,27 +84,26 @@ exports.redirectReq = async (req, reply) => {
       switch (method) {
         case 'GET':
         case 'get':
-          log.d(mod, fun, `url: ${redirectUrl}`)
-          log.d(mod, fun, `reqOpts: ${beautify(reqOpts)}`)
+          // log.d(mod, fun, `reqOpts: ${beautify(reqOpts)}`)
           const answer = await axios.get(redirectUrl, reqOpts)
-          log.d(mod, fun, `answer: ${beautify(answer.data)}`)
+          // log.d(mod, fun, `answer: ${beautify(answer.data)}`)
           return answer.data
         case 'DELETE':
         case 'delete':
         case 'DEL':
         case 'del':
           answer = await axios.delete(redirectUrl, reqOpts)
-          log.d(mod, fun, `answer: ${beautify(answer.data)}`)
+          // log.d(mod, fun, `answer: ${beautify(answer.data)}`)
           return answer.data
         case 'POST':
         case 'post':
           answer = await axios.post(redirectUrl, body, reqOpts)
-          log.d(mod, fun, `answer: ${beautify(answer.data)}`)
+          // log.d(mod, fun, `answer: ${beautify(answer.data)}`)
           return answer.data
         case 'PUT':
         case 'put':
           answer = await axios.put(redirectUrl, body, reqOpts)
-          log.d(mod, fun, `answer: ${beautify(answer.data)}`)
+          // log.d(mod, fun, `answer: ${beautify(answer.data)}`)
           return answer.data
 
         default:
@@ -111,11 +112,11 @@ exports.redirectReq = async (req, reply) => {
     } catch (err) {
       if (err.response && err.response.data) {
         const errData = err.response ? err.response.data : err
-        log.w(mod, fun, `Error sending request ${method} ${urlSuffix}: ${beautify(errData)}`)
+        log.w(mod, fun, `Error sending request ${method} ${redirectedUrlSuffix}: ${beautify(errData)}`)
         const rudiHttpError  = createRudiHttpError(errData.statusCode, errData.message)
         throw rudiHttpError
       } else {
-        log.w(mod, fun, `Error sending request ${method} ${urlSuffix}: ${err}`)
+        log.w(mod, fun, `Error sending request ${method} ${redirectedUrlSuffix}: ${err}`)
         throw err
       }
     }
