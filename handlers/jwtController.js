@@ -27,7 +27,7 @@ const {
   accessProperty,
 } = require('../utils/jsUtils')
 const { NotFoundError } = require('../utils/errors')
-const { AUTH, HEADERS } = require('../config/headers')
+const { AUTH, HEADERS, AUTH_LOW } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -247,9 +247,10 @@ exports.checkToken = async (req, reply) => {
     if (method.toUpperCase() == 'POST') token = req.body
     else {
       const header = accessProperty(req, HEADERS)
-      const auth = accessProperty(header, AUTH)
+      let auth = header[AUTH] || header[AUTH_LOW]
       if (!auth)
         throw new Error(`Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"`)
+
       token = auth.substring(7)
     }
     // log.d(mod, fun, token)
