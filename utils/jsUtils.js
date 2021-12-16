@@ -128,7 +128,7 @@ exports.quietAccess = (obj, prop) => {
   // log.d(mod, fun, `Accessing property '${jsonProperty}' from object '${utils.beautify(jsonObject)}'`)
   const value = jsonObject[jsonProperty]
   // log.d(mod, fun, `=> value = ${utils.beautify(value)}`)
-  if (!value) throw new BadRequestError(`The property '${property}' should be defined`)
+  if (!value) throw new BadRequestError(`The property '${jsonProperty}' should be defined`)
   // log.d(mod, fun, `=> ${jsonProperty} = ${utils.beautify(value)}`)
   return value
 }
