@@ -26,7 +26,7 @@ const {
   nowISO,
   accessProperty,
 } = require('../utils/jsUtils')
-const { NotFoundError } = require('../utils/errors')
+const { NotFoundError, UnauthorizedError } = require('../utils/errors')
 const { AUTH, HEADERS, AUTH_LOW } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ exports.checkToken = async (req, reply) => {
       const header = accessProperty(req, HEADERS)
       let auth = header[AUTH] || header[AUTH_LOW]
       if (!auth)
-        throw new Error(`Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"`)
+        throw new UnauthorizedError(`Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"`)
 
       token = auth.substring(7)
     }
