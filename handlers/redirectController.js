@@ -28,6 +28,7 @@ const {
   REQ_URL,
 } = require('./jwtController')
 const { createRudiHttpError } = require('../utils/errors')
+const { HEADERS, AUTH } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -55,8 +56,8 @@ exports.redirectReq = async (req, reply) => {
 
     // log.d(mod, fun, `body: ${body}`)
 
-    const subject = req.headers.sub || APP_NAME
-    const clientId = req.headers.client_id || v4()
+    const subject = req[HEADERS][JWT_SUB] || APP_NAME
+    const clientId = req[HEADERS][JWT_CLIENT] || v4()
 
     // Forging the token with the final request
     const jwtPayload = {
@@ -72,10 +73,10 @@ exports.redirectReq = async (req, reply) => {
 
     // Creating the header
     const reqOpts = {
-      headers: {
+      [HEADERS]: {
         'User-Agent': 'Rudi-Producer',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${jwt}`,
+        [AUTH]: `Bearer ${jwt}`,
       },
     }
 

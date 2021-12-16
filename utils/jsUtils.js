@@ -9,6 +9,7 @@ const mod = 'utils'
 const util = require('util')
 const { floor, pick } = require('lodash')
 const dateTime = require('date-and-time')
+const { BadRequestError } = require('./errors')
 
 // -----------------------------------------------------------------------------
 // String
@@ -114,6 +115,24 @@ exports.quietAccess = (obj, prop) => {
     return this.NOT_FOUND
   }
 }
+
+
+/**
+ * Safe access to a property of a JSON object: ensures the property is defined
+ * @param {JSON} jsonObject
+ * @param {String} jsonProperty
+ * @returns {String} The property value
+ * @throws object property is missing
+ */
+ exports.accessProperty = (jsonObject, jsonProperty) => {
+  // log.d(mod, fun, `Accessing property '${jsonProperty}' from object '${utils.beautify(jsonObject)}'`)
+  const value = jsonObject[jsonProperty]
+  // log.d(mod, fun, `=> value = ${utils.beautify(value)}`)
+  if (!value) throw new BadRequestError(`The property '${property}' should be defined`)
+  // log.d(mod, fun, `=> ${jsonProperty} = ${utils.beautify(value)}`)
+  return value
+}
+
 
 /** !! TODO: treat object arrays! */
 exports.getPaths = async (root, parentKeyName) => {

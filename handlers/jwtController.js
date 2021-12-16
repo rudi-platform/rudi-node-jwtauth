@@ -24,8 +24,10 @@ const {
   nowEpochS,
   dateEpochSToIso,
   nowISO,
+  accessProperty,
 } = require('../utils/jsUtils')
 const { NotFoundError } = require('../utils/errors')
+const { AUTH, HEADERS } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -244,11 +246,10 @@ exports.checkToken = async (req, reply) => {
     let token
     if (method.toUpperCase() == 'POST') token = req.body
     else {
-      const header = req.headers
-
-      const auth = header.authorization
+      const header = accessProperty(req, HEADERS)
+      const auth = accessProperty(header, AUTH)
       if (!auth)
-        throw new Error('Headers should include a JWT in the form "Authorization": Bearer <JWT>"')
+        throw new Error('Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"')
       token = auth.substring(7)
     }
     // log.d(mod, fun, token)
