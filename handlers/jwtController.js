@@ -249,7 +249,7 @@ exports.checkToken = async (req, reply) => {
       const header = accessProperty(req, HEADERS)
       const auth = accessProperty(header, AUTH)
       if (!auth)
-        throw new Error('Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"')
+        throw new Error(`Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"`)
       token = auth.substring(7)
     }
     // log.d(mod, fun, token)
