@@ -9,7 +9,6 @@ const mod = 'utils'
 const util = require('util')
 const { floor, pick } = require('lodash')
 const dateTime = require('date-and-time')
-const { BadRequestError } = require('./errors')
 
 // -----------------------------------------------------------------------------
 // String
@@ -128,7 +127,7 @@ exports.quietAccess = (obj, prop) => {
   // log.d(mod, fun, `Accessing property '${jsonProperty}' from object '${utils.beautify(jsonObject)}'`)
   const value = jsonObject[jsonProperty]
   // log.d(mod, fun, `=> value = ${utils.beautify(value)}`)
-  if (!value) throw new BadRequestError(`The property '${jsonProperty}' should be defined`)
+  if (!value) throw new Error(`The property '${jsonProperty}' should be defined`)
   // log.d(mod, fun, `=> ${jsonProperty} = ${utils.beautify(value)}`)
   return value
 }

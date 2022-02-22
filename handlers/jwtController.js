@@ -29,7 +29,7 @@ const {
   nowISO,
   accessProperty,
 } = require('../utils/jsUtils')
-const { NotFoundError, UnauthorizedError, BadRequestError, RudiHttpError, InternalServerError } = require('../utils/errors')
+const { NotFoundError, UnauthorizedError, BadRequestError } = require('../utils/errors')
 const { AUTH, HEADERS, AUTH_LOW } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
