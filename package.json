@@ -5,7 +5,7 @@
   "main": "./_main.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "nodemon ./_main.js",
+    "start": "node ./_main.js",
     "extstart": "nodemon -e js,ini --exec \"npm run rudiapp\"",
     "rudiapp": "npm install && node ./_main.js",
     "devstart": "./node_modules/nodemon/bin/nodemon.js ./_main.js",

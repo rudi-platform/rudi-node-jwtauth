@@ -27,7 +27,7 @@ const {
   REQ_MTD,
   REQ_URL,
 } = require('./jwtController')
-const { createRudiHttpError } = require('../utils/errors')
+const { createRudiHttpError, BadRequestError } = require('../utils/errors')
 const { HEADERS, AUTH } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ exports.redirectReq = async (req, reply) => {
           return answer.data
 
         default:
-          throw Error(`Method unkown: ${method}`)
+          throw new BadRequestError(`Method unkown: ${method}`)
       }
     } catch (err) {
       if (err.response && err.response.data) {

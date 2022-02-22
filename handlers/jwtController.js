@@ -7,6 +7,9 @@ const mod = 'jwtCtrl'
 // -----------------------------------------------------------------------------
 const { readFileSync } = require('fs')
 const { v4: uuidv4 } = require('uuid')
+
+var crypto = require('crypto')
+
 const { parseKey, parsePrivateKey } = require('sshpk')
 
 // -----------------------------------------------------------------------------
@@ -26,7 +29,7 @@ const {
   nowISO,
   accessProperty,
 } = require('../utils/jsUtils')
-const { NotFoundError, UnauthorizedError } = require('../utils/errors')
+const { NotFoundError, UnauthorizedError, BadRequestError, RudiHttpError, InternalServerError } = require('../utils/errors')
 const { AUTH, HEADERS, AUTH_LOW } = require('../config/headers')
 
 // -----------------------------------------------------------------------------
@@ -71,7 +74,7 @@ exports.getJwtAlgo = (algo) => {
       case 'PS512':
         return algo
       default:
-        throw Error(`Algo not recognized: '${algo}'`)
+        throw new BadRequestError(`Algo not recognized: '${algo}'`)
     }
   } catch (err) {
     log.w(mod, fun, err)
@@ -86,6 +89,8 @@ exports.getJwtAlgo = (algo) => {
  */
 exports.getHashAlgo = (algo) => {
   const fun = 'getHashAlgo'
+  // Complete list of hash algos :
+  // require('crypto').getHashes()
   try {
     switch (algo) {
       case 'HS256':
@@ -101,7 +106,7 @@ exports.getHashAlgo = (algo) => {
       case 'EdDSA':
         return 'sha512'
       default:
-        throw Error(`Algo not recognized: '${algo}'`)
+        throw BadRequestError(`Algo not recognized: '${algo}'`)
     }
   } catch (err) {
     log.w(mod, fun, err)
@@ -137,11 +142,11 @@ exports.createRudiApiToken = (jwtPayload) => {
   log.d(mod, fun, ``)
   try {
     if (!jwtPayload || isEmptyObject(jwtPayload))
-      throw new Error(`Incoming JSON should not be null`)
+      throw new BadRequestError(`Incoming JSON should not be null`)
 
     // Identifying the requester asking for a token
     const subject = jwtPayload[this.JWT_SUB]
-    if (!subject) throw new Error(`No ID was found for the requester (property '${this.JWT_SUB}')`)
+    if (!subject) throw new BadRequestError(`No ID was found for the requester (property '${this.JWT_SUB}')`)
 
     const keyInfo = getKeyInfo(subject)
     const keyType = keyInfo[KTYP]
@@ -170,6 +175,15 @@ exports.createRudiApiToken = (jwtPayload) => {
     // Building the JWT signature
     const hashAlgo = this.getHashAlgo(keyType)
     log.d(mod, fun, `hash algo: ${hashAlgo}`)
+
+    // ==> Replacing with Crypto lib!
+    const cryptoSignVerifier = crypto.createSign(hashAlgo)
+    if (!cryptoSignVerifier) throw UnauthorizedError('Failed to create crypto verifier')
+    
+    // prvKey
+
+    // <== Replacing with Crypto lib!
+
     const sign_buffer = prvKey.createSign(hashAlgo)
     sign_buffer.update(data)
     const signatureBase64 = sign_buffer.sign()
@@ -249,7 +263,9 @@ exports.checkToken = async (req, reply) => {
       const header = accessProperty(req, HEADERS)
       let auth = header[AUTH] || header[AUTH_LOW]
       if (!auth)
-        throw new UnauthorizedError(`Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"`)
+        throw new UnauthorizedError(
+          `Headers should include a JWT in the form '${AUTH}': Bearer <JWT>"`
+        )
 
       token = auth.substring(7)
     }
@@ -281,15 +297,15 @@ exports.verifyToken = async (token) => {
     // Check if the token is still valid
     const jwtPayload = JSON.parse(decodeBase64url(jwtPayloadBase64url))
     const jwtExp = jwtPayload[this.JWT_EXP]
-    if (!jwtExp) throw new Error(`JWT payload requires the property '${this.JWT_EXP}'`)
+    if (!jwtExp) throw new BadRequestError(`JWT payload requires the property '${this.JWT_EXP}'`)
     if (nowEpochS() > jwtExp)
-      throw new Error(
+      throw new UnauthorizedError(
         `JWT expired: JWT expires after ${dateEpochSToIso(jwtExp)},now is ${nowISO()}`
       )
 
     // Identify the subject
     const subject = jwtPayload[this.JWT_SUB]
-    if (!subject) throw new Error(`No ID was found for the requester (property '${this.JWT_SUB}')`)
+    if (!subject) throw new UnauthorizedError(`No ID was found for the requester (property '${this.JWT_SUB}')`)
 
     // Retrieve the public key
     const keyInfo = getKeyInfo(subject)
