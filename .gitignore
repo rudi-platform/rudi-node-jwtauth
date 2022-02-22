@@ -10,6 +10,7 @@
 
 # Logs
 **/logs
+*.log
 
 # Zip
 **/*.zip
