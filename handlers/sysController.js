@@ -37,18 +37,19 @@ let CURRENT_APP_HASH
 
 /** Returns the actual git hash */
 exports.getGitHash = () => {
-  const fun = 'getGitHash'
-  // log.d(mod, fun, ``)
-  try {
-    // log.d(mod, fun, ` GET ${URL_PV_GIT_HASH_ACCESS}`)
-    const hashId = require('child_process').execSync('git rev-parse --short HEAD')
-    // log.d(mod, fun, `${hashId}`.trim())
-
-    return `${hashId}`.trim()
-  } catch (err) {
-    log.e(mod, fun, err)
-    throw boomify(err)
-  }
+    const fun = 'getGitHash'
+    // log.d(mod, fun, ``)
+    try {
+        let hashId = process.env.RUDI_CRYPTO_GIT_REV
+        if (!hashId) {
+            hashId = require('child_process').execSync('git rev-parse --short HEAD')
+            // log.d(mod, fun, utils.beautify(process.env))
+        }
+        return `${hashId}`.trim()
+    } catch (err) {
+        log.e(mod, fun, err)
+        throw boomify(err)
+    }
 }
 
 /** Returns the git hash of the last time the app was launched */

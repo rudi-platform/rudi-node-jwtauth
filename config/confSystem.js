@@ -4,6 +4,7 @@ const mod = 'sysConf'
 // -----------------------------------------------------------------------------
 // External dependecies
 // -----------------------------------------------------------------------------
+const util = require('util');
 require('winston')
 const { format } = require('date-and-time')
 
@@ -133,6 +134,8 @@ utils.consoleLog(mod, fun, `LISTENING_PORT: ${this.LISTENING_PORT}`)
 // utils.consoleLog(mod, fun, `LOG_EXP: ${this.LOG_EXP}`)
 // utils.consoleLog(mod, fun, `DB_NAME: ${this.DB_NAME}`)
 // utils.consoleLog(mod, fun, `DB_URL: ${this.DB_URL}`)
+
+console.log('OPTION: '+util.inspect(exports));
 
 exports.getHost = () => {
   return `http://${this.LISTENING_ADDR}:${this.LISTENING_PORT}`
