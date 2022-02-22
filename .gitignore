@@ -5,9 +5,6 @@
 # Libs
 **/node_modules
 
-# Dev
-.jsbeautifyrc
-
 # Logs
 **/logs
 *.log
