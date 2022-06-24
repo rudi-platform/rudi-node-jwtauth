@@ -184,9 +184,9 @@ exports.createRudiApiToken = (jwtPayload) => {
 
     // <== Replacing with Crypto lib!
 
-    const sign_buffer = prvKey.createSign(hashAlgo)
-    sign_buffer.update(data)
-    const signatureBase64 = sign_buffer.sign()
+    const signBuffer = prvKey.createSign(hashAlgo)
+    signBuffer.update(data)
+    const signatureBase64 = signBuffer.sign()
     const signatureBase64url = convertEncoding(signatureBase64.toString(), 'base64', 'base64url')
     // log.d(mod, fun, `base64url signature: ${signatureBase64url}`)
 

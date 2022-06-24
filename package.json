@@ -9,7 +9,8 @@
     "extstart": "nodemon -e js,ini --exec \"npm run rudiapp\"",
     "rudiapp": "npm install && node ./_main.js",
     "devstart": "./node_modules/nodemon/bin/nodemon.js ./_main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cleanup": "rm -fR ./node_modules ./package-lock.json ./yarn.lock"
   },
   "keywords": [
     "rudi",
@@ -19,15 +20,15 @@
   "author": "olivier.martineau@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
-    "date-and-time": "^2.0.0",
-    "fastify": "^3.20.2",
-    "ini": "^2.0.0",
+    "axios": "^0.27.2",
+    "date-and-time": "^2.4.0",
+    "fastify": "^4.1.0",
+    "ini": "^3.0.0",
     "lodash": "^4.17.21",
-    "nodemon": "^2.0.12",
-    "sshpk": "^1.16.1",
+    "nodemon": "^2.0.18",
+    "sshpk": "^1.17.0",
     "uuid": "^8.3.2",
-    "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.5"
+    "winston": "^3.8.0",
+    "winston-daily-rotate-file": "^4.7.1"
   }
 }
