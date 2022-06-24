@@ -94,7 +94,7 @@ privateRoutes.forEach((pubRoute, index) => {
 const start = async () => {
   try {
     await fastify
-      .listen(sys.LISTENING_PORT, sys.LISTENING_ADDR)
+      .listen({ port: sys.LISTENING_PORT, host: sys.LISTENING_ADDR })
       .catch((err) => log.e(mod, 'Fastify listen', `${err}`))
   } catch (err) {
     // fastify.log.error(err)
@@ -109,7 +109,10 @@ try {
       log.i(mod, 'server', 'Ready')
       const appHash = getAppHash()
       const gitHash = getGitHash()
-      const hashMsg = appHash===gitHash?`Application version '${appHash}'`:`App version '${appHash}' | Git version: '${gitHash}''`
+      const hashMsg =
+        appHash === gitHash
+          ? `Application version '${appHash}'`
+          : `App version '${appHash}' | Git version: '${gitHash}''`
       log.i(mod, 'app', hashMsg)
       utils.separateLogs('Init OK')
     })
