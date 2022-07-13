@@ -296,6 +296,7 @@ exports.verifyToken = async (token) => {
 
     // Check if the token is still valid
     const jwtPayload = JSON.parse(decodeBase64url(jwtPayloadBase64url))
+    log.d(mod, fun , beautify(jwtPayload))
     const jwtExp = jwtPayload[this.JWT_EXP]
     if (!jwtExp) throw new BadRequestError(`JWT payload requires the property '${this.JWT_EXP}'`)
     if (nowEpochS() > jwtExp)
