@@ -85,7 +85,7 @@ fastify.get(URL_JWT, async (request, reply) => {
 // Loop over each public route
 privateRoutes.forEach((pubRoute, index) => {
   fastify.route(pubRoute)
-  log.i(mod, 'routes', `Public route #${index} = ${pubRoute.method} ${pubRoute.url}`)
+  // log.i(mod, 'routes', `Public route #${index} = ${pubRoute.method} ${pubRoute.url}`)
 })
 
 // -----------------------------------------------------------------------------
