@@ -179,7 +179,7 @@ exports.createRudiApiToken = (jwtPayload) => {
     // ==> Replacing with Crypto lib!
     const cryptoSignVerifier = crypto.createSign(hashAlgo)
     if (!cryptoSignVerifier) throw UnauthorizedError('Failed to create crypto verifier')
-    
+
     // prvKey
 
     // <== Replacing with Crypto lib!
@@ -255,7 +255,7 @@ exports.checkToken = async (req, reply) => {
   const fun = 'checkToken'
   log.d(mod, fun, ``)
   try {
-    const method = req.context.config.method
+    const method = req.routeConfig.method
     log.d(mod, fun, method)
     let token
     if (method.toUpperCase() == 'POST') token = req.body
@@ -283,7 +283,7 @@ exports.checkToken = async (req, reply) => {
 
 exports.verifyToken = async (token) => {
   const fun = 'verifyToken'
-  log.d(mod, fun, ``)
+  log.d(mod, fun, `${token}`)
 
   try {
     const [jwtHeaderBase64url, jwtPayloadBase64url, jwtSignatureBase64url] = token.split('.')
