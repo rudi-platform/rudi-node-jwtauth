@@ -46,6 +46,8 @@ exports.JWT_CLIENT = 'client_id' // https://www.rfc-editor.org/rfc/rfc6749.html#
 exports.REQ_MTD = 'req_mtd'
 exports.REQ_URL = 'req_url'
 
+exports.JWT_KEY = 'key' // Used when 'sub' is needed in the JWT and does not correspond to the key in profiles
+
 // -----------------------------------------------------------------------------
 // Controllers
 // -----------------------------------------------------------------------------
@@ -145,8 +147,11 @@ exports.createRudiApiToken = (jwtPayload) => {
       throw new BadRequestError(`Incoming JSON should not be null`)
 
     // Identifying the requester asking for a token
-    const subject = jwtPayload[this.JWT_SUB]
-    if (!subject) throw new BadRequestError(`No ID was found for the requester (property '${this.JWT_SUB}')`)
+    const subject = jwtPayload[this.JWT_KEY] || jwtPayload[this.JWT_SUB]
+    if (!subject)
+      throw new BadRequestError(
+        `No ID was found for the requester (property '${this.JWT_KEY} or ${this.JWT_SUB}')`
+      )
 
     const keyInfo = getKeyInfo(subject)
     const keyType = keyInfo[KTYP]
@@ -296,7 +301,7 @@ exports.verifyToken = async (token) => {
 
     // Check if the token is still valid
     const jwtPayload = JSON.parse(decodeBase64url(jwtPayloadBase64url))
-    log.d(mod, fun , beautify(jwtPayload))
+    log.d(mod, fun, beautify(jwtPayload))
     const jwtExp = jwtPayload[this.JWT_EXP]
     if (!jwtExp) throw new BadRequestError(`JWT payload requires the property '${this.JWT_EXP}'`)
     if (nowEpochS() > jwtExp)
@@ -305,8 +310,9 @@ exports.verifyToken = async (token) => {
       )
 
     // Identify the subject
-    const subject = jwtPayload[this.JWT_SUB]
-    if (!subject) throw new UnauthorizedError(`No ID was found for the requester (property '${this.JWT_SUB}')`)
+    const subject = jwtPayload[this.JWT_KEY] || jwtPayload[this.JWT_SUB]
+    if (!subject)
+      throw new UnauthorizedError(`No ID was found for the requester (property '${this.JWT_SUB}')`)
 
     // Retrieve the public key
     const keyInfo = getKeyInfo(subject)
