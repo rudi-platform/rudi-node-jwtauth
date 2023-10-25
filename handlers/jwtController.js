@@ -7,13 +7,6 @@ const mod = 'jwtCtrl'
 // -----------------------------------------------------------------------------
 import { v4 as uuidv4 } from 'uuid'
 
-// const { parseKey, parsePrivateKey } = require('sshpk')
-
-// -----------------------------------------------------------------------------
-// Internal dependancies
-// -----------------------------------------------------------------------------
-import { logD, logW } from '../utils/logging.js'
-
 import {
   extractJwt,
   forgeToken,
@@ -21,6 +14,11 @@ import {
   tokenStringToJwtObject,
   verifyToken,
 } from '@aqmo.org/jwt-lib'
+// -----------------------------------------------------------------------------
+// Internal dependancies
+// -----------------------------------------------------------------------------
+import { logD, logW } from '../utils/logging.js'
+
 import { DEFAULT_EXP, PROFILES, PRV_KEY, PUB_KEY } from '../config/confSystem.js'
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../utils/errors.js'
 import { isEmptyObject, nowEpochS } from '../utils/jsUtils.js'
@@ -215,7 +213,7 @@ export async function checkJwt(req, reply) {
       status: signIsValid ? 'OK' : 'KO',
       message: `JWT is ${signIsValid ? '' : 'in'}valid`,
     }
-    reply.status(signIsValid?200:400).json(returnMsg)
+    reply.status(signIsValid ? 200 : 400).json(returnMsg)
   } catch (err) {
     logW(mod, fun, err)
     throw err
