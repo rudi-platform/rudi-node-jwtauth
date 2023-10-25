@@ -29,7 +29,17 @@
     "semi": ["error", "never"],
     "arrow-body-style": "off",
     "prefer-arrow-callback": "off",
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^(_|req|reply|res|next|fun)$"
+      }
+    ]
   },
   "extends": ["prettier"],
   "plugins": ["prettier"]
