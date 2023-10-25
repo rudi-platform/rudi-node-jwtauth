@@ -10,6 +10,7 @@
     "jwt"
   ],
   "main": "./_main.js",
+  "type": "module",
   "scripts": {
     "prestart": "npm install",
     "start": "node ./_runCrypto.js",
@@ -19,12 +20,15 @@
   "dependencies": {
     "axios": "^1.5.1",
     "date-and-time": "^3.0.3",
-    "fastify": "^4.23.2",
+    "fastify": "^4.24.3",
     "ini": "^4.1.1",
     "lodash": "^4.17.21",
-    "sshpk": "^1.17.0",
+    "sshpk": "^1.18.0",
     "uuid": "^9.0.1",
-    "winston": "^3.10.0",
+    "winston": "^3.11.0",
     "winston-daily-rotate-file": "^4.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

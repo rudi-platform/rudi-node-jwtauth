@@ -103,23 +103,19 @@ const start = async () => {
   }
 }
 
-try {
-  start()
-    .then(() => {
-      log.i(mod, 'server', 'Ready')
-      const appHash = getAppHash()
-      const gitHash = getGitHash()
-      const hashMsg =
-        appHash === gitHash
-          ? `Application version '${appHash}'`
-          : `App version '${appHash}' | Git version: '${gitHash}''`
-      log.i(mod, 'app', hashMsg)
-      utils.separateLogs('Init OK')
-    })
-    .catch((err) => log.e(mod, 'server', `Crashed: ${err}`))
-} catch (uncaught) {
-  log.e(mod, 'server', `Uncaught error: ${uncaught}`)
-}
+start()
+  .then(() => {
+    log.i(mod, 'server', 'Ready')
+    const appHash = getAppHash()
+    const gitHash = getGitHash()
+    const hashMsg =
+      appHash === gitHash
+        ? `Application version '${appHash}'`
+        : `App version '${appHash}' | Git version: '${gitHash}''`
+    log.i(mod, 'app', hashMsg)
+    utils.separateLogs('Init OK')
+  })
+  .catch((err) => log.e(mod, 'server', `Crashed: ${err}`))
 
 process.on('uncaughtException', (err) => {
   log.e(mod, 'process', `Uncaught error: ${err}`)
