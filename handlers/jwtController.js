@@ -11,6 +11,7 @@ import {
   extractJwt,
   forgeToken,
   readPrivateKeyFile,
+  readPublicKeyFile,
   tokenStringToJwtObject,
   verifyToken,
 } from '@aqmo.org/jwt-lib'
@@ -162,7 +163,7 @@ function getKeyInfo(subject, keyType = PUBK) {
     const subjectInfo = PROFILES[subject]
     if (!subjectInfo)
       throw new NotFoundError(
-        `Subject '${subject}' not found in profiles: ${Object.keys(PROFILES)}`
+        `Subject '${subject}' not found in profiles`
       )
     if (!KEYS[subject]) KEYS[subject] = {}
     if (keyType == PRVK) {
@@ -180,8 +181,7 @@ function getKeyInfo(subject, keyType = PUBK) {
         throw new NotFoundError(
           `Property ${PUB_KEY} not found in profiles for subject: '${subject}'`
         )
-
-      const pubKeyPem = readPrivateKeyFile(pubKeyPath)
+      const pubKeyPem = readPublicKeyFile(pubKeyPath)
       KEYS[subject][PUBK] = pubKeyPem
       return pubKeyPem
     }
@@ -191,11 +191,11 @@ function getKeyInfo(subject, keyType = PUBK) {
   }
 }
 
-export async function checkJwt(req, reply) {
+export function checkJwt(req, reply) {
   const fun = 'checkToken'
   logD(mod, fun, ``)
   try {
-    const method = req.routeConfig.method
+    const method = req.routeOptions?.config?.method
     logD(mod, fun, method)
     const token = method.toUpperCase() == 'POST' ? req.body : extractJwt(req)
 
@@ -212,7 +212,7 @@ export async function checkJwt(req, reply) {
       status: signIsValid ? 'OK' : 'KO',
       message: `JWT is ${signIsValid ? '' : 'in'}valid`,
     }
-    reply.status(signIsValid ? 200 : 400).json(returnMsg)
+    reply.status(signIsValid ? 200 : 400).send(returnMsg)
   } catch (err) {
     logW(mod, fun, err)
     throw err
