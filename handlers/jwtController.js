@@ -200,7 +200,7 @@ export async function checkJwt(req, reply) {
     const token = method.toUpperCase() == 'POST' ? req.body : extractJwt(req)
 
     // Identify the subject
-    const jwtPayload = tokenStringToJwtObject(jwtStr)?.payload
+    const jwtPayload = tokenStringToJwtObject(token)?.payload
     const subject = jwtPayload[JWT_KEY] || jwtPayload[JWT_SUB]
     if (!subject)
       throw new UnauthorizedError(`No ID was found for the requester (property '${JWT_SUB}')`)
