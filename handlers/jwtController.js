@@ -114,11 +114,10 @@ export function getHashAlgo(algo) {
  */
 export const forgeJwt = (req, reply) => createRudiApiToken(req.body)
 
-export function createRudiApiToken(req, reply) {
+export function createRudiApiToken(jwtPayload) {
   const fun = 'createRudiApiToken'
   logD(mod, fun, ``)
   try {
-    const jwtPayload = req.body
     if (!jwtPayload || isEmptyObject(jwtPayload))
       throw new BadRequestError(`Incoming JSON should not be null`)
 
