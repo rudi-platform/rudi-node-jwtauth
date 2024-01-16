@@ -19,9 +19,9 @@
   },
   "dependencies": {
     "@aqmo.org/jwt-lib": "^1.1.11",
-    "axios": "^1.6.2",
-    "date-and-time": "^3.0.3",
-    "fastify": "^4.25.1",
+    "axios": "^1.6.5",
+    "date-and-time": "^3.1.1",
+    "fastify": "^4.25.2",
     "ini": "^4.1.1",
     "lodash": "^4.17.21",
     "uuid": "^9.0.1",
