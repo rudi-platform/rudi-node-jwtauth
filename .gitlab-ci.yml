@@ -19,10 +19,6 @@ quality:dev:
       when: always
     - if: '$CI_PIPELINE_SOURCE != "push"'
       when: manual
-  cache:
-    - key:
-        files: [./package-lock.json]
-      paths: [./node_modules/]
   tags:
     - nodejs-20
   variables:
@@ -43,10 +39,6 @@ install:prod:
       when: manual
   tags:
     - nodejs-20
-  cache:
-    - key:
-        files: [./package-lock.json]
-      paths: [./node_modules/]
   variables:
     NODE_ENV: production
   script:
