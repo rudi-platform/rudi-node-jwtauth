@@ -18,7 +18,7 @@ import { consoleErr, consoleLog } from './jsUtils.js'
 // -----------------------------------------------------------------------------
 
 // Local configuration file extraction
-export function readIniFile(confFile, debug) {
+export function readIniFile(confFile) {
   const fun = 'readIniFile'
   try {
     const fileContent = readFileSync(`${confFile}`, 'utf-8')

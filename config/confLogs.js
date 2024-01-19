@@ -27,7 +27,7 @@ import { APP_NAME, LOG_DIR, LOG_LVL, OUT_LOG, SYMLINK_NAME } from './confSystem.
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
-const errorLogsFileName = 'rudiProxy-errors.log'
+// const errorLogsFileName = 'rudiProxy-errors.log'
 const errorDBLogsFileName = 'ff-errors.log'
 
 // -----------------------------------------------------------------------------
@@ -144,23 +144,23 @@ export const logger = createLogger({
   transports: [logOutputs.console, logOutputs.datedFile, logOutputs.combined],
 })
 
-function extractErrorFromFastifyMsg(msg) {
-  try {
-    return msg.split('err: ')[1].split('\n')
-  } catch (err) {
-    return msg
+/* 
+  function extractErrorFromFastifyMsg(msg) {
+    try {
+      return msg.split('err: ')[1].split('\n')
+    } catch (err) {
+      return msg
+    }
   }
-}
-const FORMAT_PRINTFF = (info) =>
+ const formatFastifyOutput = (info) =>
   `${info.timestamp} .${info.level}. [fastify] ${extractErrorFromFastifyMsg(info.message)}`
-
-const formatConsoleFastifyLogs = winstonFormat.combine(
+  const formatConsoleFastifyLogs = winstonFormat.combine(
   winstonFormat.json(),
   winstonFormat.colorize(COLORIZE_ALL),
   winstonFormat.timestamp(FORMAT_TIMESTAMP),
-  winstonFormat.printf(FORMAT_PRINTFF)
+  winstonFormat.printf(formatFastifyOutput)
 )
-
+ */
 export function initFFLogger(appname) {
   const fun = 'initFFLogger'
   // Here we use winston.containers IoC

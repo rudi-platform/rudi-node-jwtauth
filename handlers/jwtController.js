@@ -161,10 +161,7 @@ function getKeyInfo(subject, keyType = PUBK) {
 
     // Extracting info
     const subjectInfo = PROFILES[subject]
-    if (!subjectInfo)
-      throw new NotFoundError(
-        `Subject '${subject}' not found in profiles`
-      )
+    if (!subjectInfo) throw new NotFoundError(`Subject '${subject}' not found in profiles`)
     if (!KEYS[subject]) KEYS[subject] = {}
     if (keyType == PRVK) {
       const prvKeyPath = subjectInfo[PRV_KEY]

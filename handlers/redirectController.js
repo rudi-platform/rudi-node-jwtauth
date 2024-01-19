@@ -7,7 +7,7 @@ const mod = 'redirect'
 // -----------------------------------------------------------------------------
 
 import axios from 'axios'
-const {  delete: del, get, post, put } = axios
+const { delete: del, get, post, put } = axios
 
 import { v4 as uuid4 } from 'uuid'
 
@@ -28,7 +28,7 @@ import {
   JWT_SUB,
   REQ_MTD,
   REQ_URL,
-  createRudiApiToken
+  createRudiApiToken,
 } from './jwtController.js'
 
 // -----------------------------------------------------------------------------

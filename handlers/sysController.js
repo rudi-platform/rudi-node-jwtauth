@@ -56,13 +56,9 @@ export async function getNodeVersion() {
     // log.d(mod, fun, ` GET ${URL_PV_NODE_VERSION_ACCESS}`)
     const nodeVersion = execSync('node -v')
     const npmVersion = execSync('npm -v')
-    const mongooseVersion = execSync('npm view mongoose version')
-    const mongoDbVersion = await getMongDbVersion()
     const nVersions = {
       node: `${nodeVersion}`.trim(),
       npm: `${npmVersion}`.trim(),
-      mongoose: `${mongooseVersion}`.trim(),
-      mongodb: `${mongoDbVersion}`.trim(),
     }
     // log.d(mod, fun, `${utils.beautify(nVersions)}`)
 

@@ -15,7 +15,9 @@
     "prestart": "npm install",
     "start": "nodemon ./_runCrypto.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cleanup": "rm -fR ./node_modules ./package-lock.json ./yarn.lock"
+    "cleanup": "rm -fR ./node_modules ./package-lock.json ./yarn.lock",
+    "lint": "prettier -c \"**/*.js\"; eslint \"**/*.js\"",
+    "prettify": "prettier  -w \"**/*.js\""
   },
   "dependencies": {
     "@aqmo.org/jwt-lib": "^1.1.11",
@@ -29,6 +31,14 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "@babel/core": "^7.23.7",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/preset-env": "^7.23.8",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "nodemon": "^3.0.3",
+    "prettier": "^3.2.4"
   }
 }
