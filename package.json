@@ -16,7 +16,7 @@
     "start": "nodemon ./_runCrypto.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "cleanup": "rm -fR ./node_modules ./package-lock.json ./yarn.lock",
-    "lint": "prettier -c \"**/*.js\"; eslint \"**/*.js\"",
+    "lint": "prettier -c \"**/*.js\" && eslint \"**/*.js\"",
     "prettify": "prettier  -w \"**/*.js\""
   },
   "dependencies": {
