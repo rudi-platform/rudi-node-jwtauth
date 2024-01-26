@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@aqmo.org/jwt-lib": "^1.1.12",
-    "axios": "^1.6.6",
+    "axios": "^1.6.7",
     "date-and-time": "^3.1.1",
     "fastify": "^4.25.2",
     "ini": "^4.1.1",
@@ -31,9 +31,9 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.7",
-    "@babel/eslint-parser": "^7.23.3",
-    "@babel/preset-env": "^7.23.8",
+    "@babel/core": "^7.23.9",
+    "@babel/eslint-parser": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
