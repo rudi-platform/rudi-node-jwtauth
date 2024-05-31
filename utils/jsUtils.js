@@ -115,7 +115,7 @@ export function beautify(jsonObject, option) {
     return `${JSON.stringify(jsonObject, null, option).replace(/\\"/g, '"')}${
       option != null ? '\n' : ''
     }`
-  } catch (err) {
+  } catch {
     return `${inspect(jsonObject)}`
   }
 }

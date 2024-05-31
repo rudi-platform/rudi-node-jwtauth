@@ -38,7 +38,8 @@ import {
 // -----------------------------------------------------------------------------
 // Redirection controllers
 // -----------------------------------------------------------------------------
-export async function redirectReq(req, reply) {
+// eslint-disable-next-line complexity
+export async function redirectReq(req) {
   const fun = 'redirectReq'
   try {
     logV(mod, fun, `< ${URL_REDIRECT}/:${SUFFIX_REDIRECT}`)
@@ -79,20 +80,15 @@ export async function redirectReq(req, reply) {
     }
 
     try {
-      switch (method) {
+      switch (`${method}`.toUpperCase()) {
         case 'GET':
-        case 'get':
           return (await get(redirectUrl, reqOpts))?.data
         case 'DELETE':
-        case 'delete':
         case 'DEL':
-        case 'del':
           return (await del(redirectUrl, reqOpts))?.data
         case 'POST':
-        case 'post':
           return (await post(redirectUrl, body, reqOpts))?.data
         case 'PUT':
-        case 'put':
           return (await put(redirectUrl, body, reqOpts))?.data
         default:
           throw new BadRequestError(`Method unkown: ${method}`)

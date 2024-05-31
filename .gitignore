@@ -22,3 +22,6 @@ package-lock.json
 **/0-ssh/*
 **/*.pub
 **/*.prv
+
+# Dev
+**.*.bak

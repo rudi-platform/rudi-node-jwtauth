@@ -42,7 +42,7 @@ const DB_SECTION = 'database'
 
 const _dbUrl = 'db_url'
 const _dbName = 'db_name'
-const _dbPort = 'db_port'
+// const _dbPort = 'db_port'
 
 // Logs section
 const LOG_SECTION = 'logging'
