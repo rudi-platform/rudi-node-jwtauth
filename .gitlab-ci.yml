@@ -24,7 +24,7 @@ quality_dev:
   variables:
     NODE_ENV: development
   script:
-    - npm i
+    - npm i || (npm cache clean --force && npm i)
     - npm run lint
 
 #---------------------------------------------------------------------------------------------------
@@ -42,4 +42,4 @@ install_prod:
   variables:
     NODE_ENV: production
   script:
-    - npm i
+    - npm i || (npm cache clean --force && npm i)
