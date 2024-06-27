@@ -20,6 +20,7 @@ package-lock.json
 
 # Keys
 **/0-ssh/*
+**/.ssh
 **/*.pub
 **/*.prv
 
