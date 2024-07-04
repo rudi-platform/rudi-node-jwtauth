@@ -85,7 +85,7 @@ fastifyConf.get(URL_JWT, () => {
 })
 
 // Loop over each public route
-privateRoutes.forEach((pubRoute) => fastifyConf.route(pubRoute))
+privateRoutes.forEach((route) => fastifyConf.route(route))
 
 // -----------------------------------------------------------------------------
 // SERVER

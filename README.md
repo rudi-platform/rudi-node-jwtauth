@@ -22,6 +22,10 @@ This subject and the associated public key must be equally defined on the side o
 
 ## API to use this module
 
+### _Hash a passwrod_
+
+- `POST /crypto/pwd/hash` Hash a password. You can provide a password as a plain string in the body. One can also provided a base64 or base64url-encoded string by adding ?encoding.
+
 ### _JWT creation / verification_
 
 - `POST /crypto/jwt/forge` Create a JWT with the following information (to be included in the body of the request as a JSON)
