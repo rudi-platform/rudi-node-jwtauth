@@ -24,7 +24,7 @@ This subject and the associated public key must be equally defined on the side o
 
 ### _Hash a passwrod_
 
-- `POST /crypto/pwd/hash` Hash a password. You can provide a password as a plain string in the body. One can also provided a base64 or base64url-encoded string by adding ?encoding.
+- `POST /crypto/pwd/hash` Hash a password. You can provide a password as a plain string in the body. One can also provide a base64 or base64url-encoded string by adding to the request URL `?encoding=base64` (respectively `?encoding=base64url`).
 
 ### _JWT creation / verification_
 
