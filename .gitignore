@@ -1,0 +1,28 @@
+# Config
+**/custom.ini
+**/*custom.ini
+
+# Generated
+**/node_modules
+package-lock.json
+*.lock
+
+# Logs
+**/logs
+*.log
+
+# Zip
+**/*.zip
+**/*.gz
+
+# XLSX
+**/*.xls*
+
+# Keys
+**/0-ssh/*
+**/.ssh
+**/*.pub
+**/*.prv
+
+# Dev
+**.*.bak
