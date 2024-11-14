@@ -72,7 +72,7 @@ fastifyConf.get(URL_PREFIX, () => {
   // request.log.info(`GET /api`)
   logI(mod, 'routes', `GET ${URL_PREFIX}`)
   return {
-    RUDI: 'crypto',
+    RUDI: 'jwtauth',
   }
 })
 

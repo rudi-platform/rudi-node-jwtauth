@@ -154,7 +154,3 @@ export function consoleErr(loc_mod, loc_fun, msg) {
   const errMsg = msg.err || msg
   console.error(nowLocaleFormatted(), '.error.', displayStr(loc_mod, loc_fun, errMsg))
 }
-
-// -----------------------------------------------------------------------------
-// Crypto
-// -----------------------------------------------------------------------------
