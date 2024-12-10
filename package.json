@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@aqmo.org/jwt-lib": "^1.1.13",
-    "axios": "^1.7.7",
+    "axios": "^1.7.9",
     "date-and-time": "^3.6.0",
     "fastify": "^5.1.0",
     "ini": "^5.0.0",
@@ -35,12 +35,12 @@
     "@babel/eslint-parser": "^7.25.9",
     "@babel/preset-env": "^7.26.0",
     "braces": "^3.0.3",
-    "eslint": "^9.15.0",
+    "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "nodemon": "^3.1.7",
-    "prettier": "^3.3.3"
+    "prettier": "^3.4.2"
   },
   "overrides": {
     "braces": "$braces"
