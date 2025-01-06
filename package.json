@@ -23,10 +23,10 @@
     "@aqmo.org/jwt-lib": "^1.1.13",
     "axios": "^1.7.9",
     "date-and-time": "^3.6.0",
-    "fastify": "^5.2.0",
+    "fastify": "^5.2.1",
     "ini": "^5.0.0",
     "lodash": "^4.17.21",
-    "uuid": "^11.0.3",
+    "uuid": "^11.0.4",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
