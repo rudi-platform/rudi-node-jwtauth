@@ -1,99 +1,81 @@
-<br>
-<p align="center">
-  <a href="https://rudi.rennesmetropole.fr/">
-  <img src="https://blog.rudi.bzh/wp-content/uploads/2020/11/logo_bleu_orange.svg" width=100px alt="Rudi logo" />  </a>
-</p>
+# RUDI producer node: JWT creation module
 
-<h2 align="center" >RUDI Node JWTauth</h3>
-<p align="center">Module de création de JWT pour l'authentification des requêtes vers l'API du nœud producteur de RUDI.</p>
+_Create JWT for sending requests to the RUDI Producer API/proxy module_
 
-<p align="center"><a href="https://rudi.rennesmetropole.fr/">🌐 Instance de Rennes Métropole</a> · <a href="doc.rudi.bzh">📚 Documentation</a> ·  <a href="https://blog.rudi.bzh/">📰 Blog</a><p>
+##### Author: Olivier Martineau (olivier.martineau@irisa.fr)
 
-## ⚙️ Configuration
+---
 
-### Fichiers de configuration
-```ini
-# 0-ini/conf_default.ini : Configuration par défaut
-# 0-ini/conf_custom.ini : Configuration personnalisée
-```
+## Configuration
 
-Le fichier de configuration doit spécifier :
-- Le chemin vers le fichier **profiles**
-- Les clés publiques et privées pour chaque sujet JWT
-- La correspondance avec les sujets définis dans l'API RUDI producer
+Configuration files can be found in the **"0-ini" directory**.
 
-## 🔑 API du module
+- **"0-ini/conf_default.ini"**: default configuration and use examples
+- **"0-ini/conf_custom.ini"**: user configuration, to be created.
 
-### Gestion des mots de passe
-```http
-POST /crypto/pwd/hash
-```
-Hash un mot de passe. Accepte :
-- Texte brut dans le body
-- Encodage base64 avec `?encoding=base64`
-- Encodage base64url avec `?encoding=base64url`
+In these files, you have to provide a path for the **profiles** file that indicates the public and private key for the
+subject you will use in the RUDI JWT ( "key" [removed from the JWT] or "sub" [kept in the JWT] property)
 
-### Gestion des JWT
+This subject and the associated public key must be equally defined on the side of the RUDI producer API module.
 
-#### Création de token
-```http
-POST /crypto/jwt/forge
-```
-Payload requis :
-```json
-{
-  "exp": "date d'expiration (epoch)",
-  "jti": "identifiant du token (UUIDv4)",
-  "sub": "identifiant du client API",
-  "req_mtd": "méthode HTTP",
-  "req_url": "URL de la requête",
-  "client_id": "identifiant utilisateur (optionnel)"
-}
-```
+---
 
-#### Vérification de token
-```http
-GET /crypto/jwt/check    # Token dans header Authorization
-POST /crypto/jwt/check   # Token dans le body
-```
+## API to use this module
 
-### Redirection avec JWT
+### _Hash a passwrod_
 
-Routes de redirection disponibles :
-```http
-GET    /crypto/redirect/<url>
-POST   /crypto/redirect/<url>
-PUT    /crypto/redirect/<url>
-DELETE /crypto/redirect/<url>
-```
+- `POST /crypto/pwd/hash` Hash a password. You can provide a password as a plain string in the body. One can also provide a base64 or base64url-encoded string by adding to the request URL `?encoding=base64` (respectively `?encoding=base64url`).
 
-#### Exemples de redirection
-```
-GET http://127.0.0.1:4000/crypto/redirect/resources?sort=-global_id
-→ GET http://127.0.0.1:3000/api/admin/resources?sort=-global_id
+### _JWT creation / verification_
 
-GET http://127.0.0.1:4000/crypto/redirect/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33
-→ GET http://127.0.0.1:3000/api/admin/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33
-```
+- `POST /crypto/jwt/forge` Create a JWT with the following information (to be included in the body of the request as a JSON)
 
-### Gestion des logs
-```http
-GET    /crypto/logs    # Consultation des logs
-DELETE /crypto/logs    # Nettoyage des logs
-```
+  - `exp`: token expiration date in Epoch seconds
+  - `jti`: token identifier (preferably UUIDv4)
+  - `sub`: requester, ie API client that sends the HTTP request
+  - `req_mtd`: http method used for the request
+  - `req_url`: url of the request
+  - `client_id`: (optional) identifier of the logged user
 
-## 👥 Contact
+- `GET /crypto/jwt/check`
+  Check the validity of the JWT placed in header (`"Authentification": Bearer <token>`)
 
-Pour toute question : olivier.martineau@irisa.fr
+- `POST /crypto/jwt/check`
+  Check the validity of the JWT string in the request body
 
-## 📚 Documentation complémentaire
+---
 
-- [Documentation API RUDI Producer](https://app.swaggerhub.com/apis/OlivierMartineau/RUDI-PRODUCER/)
+### _Redirection with JWT identification_
 
-## Contribuer à Rudi
+The following routes redirect `GET/POST/PUT/DELETE` requests to the destination URL: it replaces in the request URL the
+current module domain with the one of the API module as configured in **conf_custom.ini**.
 
-Nous accueillons et encourageons les contributions de la communauté. Voici comment vous pouvez participer :
-- 🛣️ [Feuille de route](https://github.com/orgs/rudi-platform/projects/2)
-- 🐞 [Signaler un bug du portail](https://github.com/rudi-platform/rudi-node-jwtauth/issues)
-- ✨ [Contribuer](https://github.com/rudi-platform/.github/blob/main/CONTRIBUTING.md)
-- 🗣️ [Participer aux discussions](https://github.com/orgs/rudi-platform/discussions)
+- `GET /crypto/redirect/<destination_url>`
+- `POST /crypto/redirect/<destination_url>`
+- `PUT /crypto/redirect/<destination_url>`
+- `DELETE /crypto/redirect/<destination_url>`
+
+#### Examples:
+
+> GET http://127.0.0.1:4000/crypto/redirect/resources?sort=-global_id
+
+returns the result of
+
+> GET http://127.0.0.1:3000/api/admin/resources?sort=-global_id
+
+In a similar way,
+
+> GET http://127.0.0.1:4000/crypto/redirect/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33
+
+returns the result of
+
+> GET http://127.0.0.1:3000/api/admin/resources/b0fcf63b-c220-4275-8dcb-e8f663203c33
+
+---
+
+### _Accessing the logs_
+
+- `GET /crypto/logs`
+  Get logs
+- `DELETE /crypto/logs`
+  Clear logs

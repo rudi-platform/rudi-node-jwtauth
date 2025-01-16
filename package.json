@@ -1,6 +1,6 @@
 {
   "name": "rudi-node-jwt-auth",
-  "version": "1.0.0",
+  "version": "2.5.0",
   "description": "JWT creation and files encryption",
   "author": "olivier.martineau@irisa.fr",
   "license": "EUPL-1.2",
@@ -9,38 +9,38 @@
     "encryption",
     "jwt"
   ],
-  "main": "./_runCrypto.js",
+  "main": "./run-rudinode-jwtauth.js",
   "type": "module",
   "scripts": {
     "prestart": "npm install",
-    "start": "nodemon ./_runCrypto.js",
+    "start": "nodemon ./run-rudinode-jwtauth.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "cleanup": "rm -fR ./node_modules ./package-lock.json ./yarn.lock",
     "lint": "prettier -c \"**/*.js\" && eslint \"**/*.js\"",
     "prettify": "prettier  -w \"**/*.js\""
   },
   "dependencies": {
-    "@aqmo.org/jwt-lib": "^1.1.12",
-    "axios": "^1.7.7",
+    "@aqmo.org/jwt-lib": "^1.1.13",
+    "axios": "^1.7.9",
     "date-and-time": "^3.6.0",
-    "fastify": "^5.1.0",
+    "fastify": "^5.2.1",
     "ini": "^5.0.0",
     "lodash": "^4.17.21",
-    "uuid": "^11.0.3",
+    "uuid": "^11.0.5",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
-    "@babel/eslint-parser": "^7.25.9",
+    "@babel/eslint-parser": "^7.26.5",
     "@babel/preset-env": "^7.26.0",
     "braces": "^3.0.3",
-    "eslint": "^9.15.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
     "eslint-plugin-unused-imports": "^4.1.4",
-    "nodemon": "^3.1.7",
-    "prettier": "^3.3.3"
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2"
   },
   "overrides": {
     "braces": "$braces"
