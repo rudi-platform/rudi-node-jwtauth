@@ -188,7 +188,6 @@ const getStorageHeaders = () => {
   const fun = 'getStorageHeaders'
   logD(mod, fun, ``)
   const keyId = getKeyIdForStorage()
-  const usrId = getUsrIdForStorage()
 
   let reqJwt = _cached_jwts.storage[keyId]
   if (!isJwtValid(reqJwt)) {
@@ -241,6 +240,7 @@ const getStorageJwt = async (jwtPayload) => {
 
   return mediaRes.data.token
 }
+
 /**
  * Returns both the private key and the algo
  * @param {string} subject

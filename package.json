@@ -13,7 +13,7 @@
   "type": "module",
   "scripts": {
     "prestart": "npm install",
-    "start": "nodemon ./run-rudinode-jwtauth.js",
+    "start": "nodemon ./run-rudinode-jwtauth.js --conf './0-ini/conf_custom.ini' --profiles './0-ini/profiles_custom.ini'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "cleanup": "rm -fR ./node_modules ./package-lock.json ./yarn.lock",
     "lint": "prettier -c \"**/*.js\" && eslint \"**/*.js\"",

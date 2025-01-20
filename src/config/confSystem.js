@@ -84,9 +84,11 @@ const CATALOG_KEY_ID = getIniValue(CATALOG_SECTION, 'key_id')
 export const getKeyIdForCatalog = () => CATALOG_KEY_ID
 
 let CATALOG_URL = join(getIniValue(CATALOG_SECTION, 'catalog_url'), '/')
-if (!CATALOG_URL?.endsWith('/api/') && !CATALOG_URL?.endsWith('/catalog/') && !CATALOG_URL?.endsWith('/admin/'))
-  CATALOG_URL = join(CATALOG_URL, 'api')
-if (!CATALOG_URL?.endsWith('/admin/')) CATALOG_URL = join(CATALOG_URL, 'admin')
+if (CATALOG_URL) {
+  if (!CATALOG_URL?.endsWith('/api/') && !CATALOG_URL?.endsWith('/catalog/') && !CATALOG_URL?.endsWith('/admin/'))
+    CATALOG_URL = join(CATALOG_URL, 'api')
+  if (!CATALOG_URL?.endsWith('/admin/')) CATALOG_URL = join(CATALOG_URL, 'admin')
+}
 export const getCatalogPrivateUrl = (...url) => join(CATALOG_URL, ...url)
 
 // RUDI Storage server info
