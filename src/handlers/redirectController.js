@@ -15,21 +15,13 @@ import { v4 as uuid4 } from 'uuid'
 // Internal dependancies
 // -----------------------------------------------------------------------------
 import { SUFFIX_REDIRECT, URL_REDIRECT } from '../config/confApi.js'
-import { APP_NAME, EXP_TIME, PROD_API_PREFIX, PROD_API_SERVER } from '../config/confSystem.js'
-import { beautify, nowEpochS } from '../utils/jsUtils.js'
+import { APP_NAME, getCatalogPrivateUrl } from '../config/confSystem.js'
+import { beautify } from '../utils/jsUtils.js'
 import { logD, logV, logW } from '../utils/logging.js'
 
 import { AUTH, HEADERS } from '../config/headers.js'
 import { BadRequestError, createRudiHttpError } from '../utils/errors.js'
-import {
-  JWT_CLIENT,
-  JWT_EXP,
-  JWT_ID,
-  JWT_SUB,
-  REQ_MTD,
-  REQ_URL,
-  createRudiApiToken,
-} from './jwtController.js'
+import { JWT_CLIENT, JWT_SUB, createRudiJwt } from './jwtController.js'
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -51,8 +43,7 @@ export async function redirectReq(req) {
     logD(mod, fun, beautify(req.raw?.url))
     logD(mod, fun, beautify(redirectedUrlSuffix))
 
-    const redirectUrl = PROD_API_SERVER + redirectedUrlSuffix
-    const partialUrl = '/' + PROD_API_PREFIX + redirectedUrlSuffix
+    const redirectUrl = getCatalogPrivateUrl(redirectedUrlSuffix)
     logD(mod, fun, `redirected request: ${method} ${redirectUrl}`)
 
     // log.d(mod, fun, `body: ${body}`)
@@ -62,12 +53,8 @@ export async function redirectReq(req) {
 
     // Forging the token with the final request
     const jwtPayload = {
-      [JWT_EXP]: nowEpochS() + EXP_TIME,
-      [JWT_ID]: uuid4(),
       [JWT_SUB]: subject,
       [JWT_CLIENT]: clientId,
-      [REQ_MTD]: method,
-      [REQ_URL]: partialUrl,
     }
 
     // Creating the header
@@ -75,7 +62,7 @@ export async function redirectReq(req) {
       [HEADERS]: {
         'User-Agent': 'Rudi-Producer',
         'Content-Type': 'application/json',
-        [AUTH]: `Bearer ${createRudiApiToken(jwtPayload)}`,
+        [AUTH]: `Bearer ${createRudiJwt(jwtPayload)}`,
       },
     }
 
@@ -96,11 +83,7 @@ export async function redirectReq(req) {
     } catch (err) {
       if (err.response?.data) {
         const errData = err.response.data || err
-        logW(
-          mod,
-          fun,
-          `Error sending request ${method} ${redirectedUrlSuffix}: ${beautify(errData)}`
-        )
+        logW(mod, fun, `Error sending request ${method} ${redirectedUrlSuffix}: ${beautify(errData)}`)
         throw createRudiHttpError(errData.statusCode, errData.message)
       } else {
         logW(mod, fun, `Error sending request ${method} ${redirectedUrlSuffix}: ${err}`)

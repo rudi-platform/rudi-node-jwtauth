@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict'
 
 const mod = 'sysConf'
@@ -9,54 +10,42 @@ import 'winston'
 // -----------------------------------------------------------------------------
 // Internal dependecies
 // -----------------------------------------------------------------------------
+import _ from 'lodash'
+const { omit } = _
+
+import minimist from 'minimist'
+import { join } from 'path'
 import { readIniFile } from '../utils/fileActions.js'
-import { NOT_FOUND, consoleLog, quietAccess, separateLogs } from '../utils/jsUtils.js'
+import { NOT_FOUND, quietAccess, separateLogs } from '../utils/jsUtils.js'
 
 separateLogs()
 
 // -----------------------------------------------------------------------------
 // Constants: local ini file configuration settings
 // -----------------------------------------------------------------------------
+const argv = omit(minimist(process.argv, { string: 'hash' }), '_')
+if (argv.length > 0) console.log('CLI options:', argv)
+else console.log('No CLI options')
 
 // Conf files
-// - directory
-const iniDir = './0-ini'
 // - user conf path
-const userConfFile = `${iniDir}/conf_custom.ini`
+const userConfFile = argv.conf || `./0-ini/conf_custom.ini`
 // - default conf path
-const defConfFile = `${iniDir}/conf_default.ini`
+const defConfFile = `./0-ini/conf_default.ini`
 
 // Node Server section
 const SERVER_SECTION = 'server'
-const _serverAddress = 'listening_address'
-const _serverPort = 'listening_port'
 
 // RUDI producer API module section
-const PROD_API_SECTION = 'rudi_prod_api'
-const _prodApiAddress = 'address'
-const _prodApiPort = 'port'
-const _prodApiSuffix = 'suffix'
-
-// DB section
-const DB_SECTION = 'database'
-
-const _dbUrl = 'db_url'
-const _dbName = 'db_name'
-// const _dbPort = 'db_port'
+const CATALOG_SECTION = 'rudi_catalog'
+const STORAGE_SECTION = 'rudi_storage'
 
 // Logs section
 const LOG_SECTION = 'logging'
 
-const _appName = 'app_name'
-const _logDir = 'log_dir'
-const _logFileName = 'log_file'
-const _logLevel = 'log_level'
-const _expires = 'expires'
-
 // Security section
 const SECURITY_SECTION = 'security'
-const _profiles = 'profiles'
-const _expTime = 'exp_time'
+
 export const DEFAULT_EXP = 6000
 
 // -----------------------------------------------------------------------------
@@ -67,6 +56,8 @@ export const DEFAULT_EXP = 6000
 // if null , default value
 const USER_CONF = readIniFile(userConfFile)
 const LOCAL_CONF = readIniFile(defConfFile)
+
+// consoleLog(mod, 'user conf', USER_CONF)
 
 // -----------------------------------------------------------------------------
 // Helper functions
@@ -85,40 +76,48 @@ function getIniValue(section, field) {
   return NOT_FOUND
 }
 
-export const LISTENING_ADDR = getIniValue(SERVER_SECTION, _serverAddress)
-export const LISTENING_PORT = getIniValue(SERVER_SECTION, _serverPort)
+export const LISTENING_ADDR = getIniValue(SERVER_SECTION, 'listening_address')
+export const LISTENING_PORT = getIniValue(SERVER_SECTION, 'listening_port')
 
-// RUDI API server
-const PROD_API_ADDR = getIniValue(PROD_API_SECTION, _prodApiAddress)
-const PROD_API_PORT = getIniValue(PROD_API_SECTION, _prodApiPort)
-export const PROD_API_PREFIX = getIniValue(PROD_API_SECTION, _prodApiSuffix)
-export const PROD_API_SERVER =
-  'http://' + PROD_API_ADDR + ':' + PROD_API_PORT + '/' + PROD_API_PREFIX
+// RUDI Catalog server info
+const CATALOG_KEY_ID = getIniValue(CATALOG_SECTION, 'key_id')
+export const getKeyIdForCatalog = () => CATALOG_KEY_ID
 
-export const DB_NAME = getIniValue(DB_SECTION, _dbName)
-const DB_URL_PREFIX = getIniValue(DB_SECTION, _dbUrl)
-export const DB_URL = `${DB_URL_PREFIX}${DB_NAME}`
+let CATALOG_URL = join(getIniValue(CATALOG_SECTION, 'catalog_url'), '/')
+if (!CATALOG_URL?.endsWith('/api/') && !CATALOG_URL?.endsWith('/catalog/') && !CATALOG_URL?.endsWith('/admin/'))
+  CATALOG_URL = join(CATALOG_URL, 'api')
+if (!CATALOG_URL?.endsWith('/admin/')) CATALOG_URL = join(CATALOG_URL, 'admin')
+export const getCatalogPrivateUrl = (...url) => join(CATALOG_URL, ...url)
 
-export const APP_NAME = getIniValue(LOG_SECTION, _appName)
-export const LOG_DIR = getIniValue(LOG_SECTION, _logDir)
-export const LOG_FILE = getIniValue(LOG_SECTION, _logFileName)
-export const OUT_LOG = `${LOG_DIR}/${LOG_FILE}`
+// RUDI Storage server info
+const STORAGE_KEY_ID = getIniValue(STORAGE_SECTION, 'key_id')
+const STORAGE_USR_ID = getIniValue(STORAGE_SECTION, 'usr_id')
+export const getKeyIdForStorage = () => STORAGE_KEY_ID
+export const getUsrIdForStorage = () => STORAGE_USR_ID
+
+// const STORAGE_ADDR = getIniValue(STORAGE_SECTION, 'address')
+// const STORAGE_PORT = getIniValue(STORAGE_SECTION, 'port')
+// export const STORAGE_PREFIX = getIniValue(STORAGE_SECTION, 'prefix')
+const STORAGE_URL = getIniValue(STORAGE_SECTION, 'storage_url')
+export const getStorageUrl = (...url) => join(STORAGE_URL, ...url)
+
+// Logs
+export const APP_NAME = getIniValue(LOG_SECTION, 'app_name')
+export const LOG_DIR = getIniValue(LOG_SECTION, 'log_dir')
+export const LOG_FILE = getIniValue(LOG_SECTION, 'log_file')
+export const OUT_LOG = join(LOG_DIR, LOG_FILE)
 export const SYMLINK_NAME = `${APP_NAME}-current.log`
-export const LOG_LVL = getIniValue(LOG_SECTION, _logLevel)
-export const LOG_EXP = getIniValue(LOG_SECTION, _expires)
+export const LOG_LVL = getIniValue(LOG_SECTION, 'log_level')
+export const LOG_EXP = getIniValue(LOG_SECTION, 'expires')
 
 // Security
-const profileList = getIniValue(SECURITY_SECTION, _profiles)
-export const PROFILES = readIniFile(profileList)
-export const EXP_TIME = getIniValue(SECURITY_SECTION, _expTime) || DEFAULT_EXP
+const profileFile = argv.profiles || getIniValue(SECURITY_SECTION, 'profiles')
+export const PROFILES = readIniFile(profileFile)
+export const EXP_TIME = getIniValue(SECURITY_SECTION, 'exp_time') || DEFAULT_EXP
 
 export const PUB_KEY = 'pub_key'
 export const PRV_KEY = 'prv_key'
 
 const fun = 'export'
-
-consoleLog(mod, fun, `APP_NAME: ${APP_NAME}`)
-consoleLog(mod, fun, `LISTENING_ADDR: ${LISTENING_ADDR}`)
-consoleLog(mod, fun, `LISTENING_PORT: ${LISTENING_PORT}`)
 
 export const getHost = () => `http://${LISTENING_ADDR}:${LISTENING_PORT}`

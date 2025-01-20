@@ -38,8 +38,11 @@ export function convertEncoding(data, fromEncoding, toEncoding) {
 // Dates
 // -----------------------------------------------------------------------------
 export const nowISO = () => new Date().toISOString()
-export const nowEpochMs = () => new Date().getTime()
-export const nowEpochS = () => floor(nowEpochMs() / 1000)
+export const nowEpochMs = () => timeEpochMs()
+export const nowEpochS = () => timeEpochS()
+
+export const timeEpochMs = (delayMs = 0) => new Date().getTime() + delayMs
+export const timeEpochS = (delayS = 0) => Math.floor(new Date().getTime() / 1000) + delayS
 
 export const dateEpochSToIso = (utcSeconds) => dateEpochMsToIso(utcSeconds * 1000)
 export const dateEpochMsToIso = (utcMs) => new Date(utcMs).toISOString()
@@ -63,8 +66,7 @@ export const isEmptyArray = (anArray) => Array.isArray(anArray) && anArray.lengt
 // -----------------------------------------------------------------------------
 // Objects
 // -----------------------------------------------------------------------------
-export const isEmptyObject = (obj) =>
-  typeof obj === 'object' && !isArray(obj) && Object.keys(obj).length === 0
+export const isEmptyObject = (obj) => typeof obj === 'object' && !isArray(obj) && Object.keys(obj).length === 0
 
 export const isNotEmptyObject = (obj) => obj && Object.keys(obj).length > 0
 
@@ -112,9 +114,7 @@ export const isNothing = (prop) => !prop || isEmpty(prop)
  */
 export function beautify(jsonObject, option) {
   try {
-    return `${JSON.stringify(jsonObject, null, option).replace(/\\"/g, '"')}${
-      option != null ? '\n' : ''
-    }`
+    return `${JSON.stringify(jsonObject, null, option).replace(/\\"/g, '"')}${option != null ? '\n' : ''}`
   } catch {
     return `${inspect(jsonObject)}`
   }
@@ -131,26 +131,28 @@ export const deepClone = (jsonObject) => JSON.parse(beautify(jsonObject))
 // -----------------------------------------------------------------------------
 // Basic logging
 // -----------------------------------------------------------------------------
+const logLineSize = 110
+const BASE_LINE = ''.padEnd(logLineSize, '=')
+
 export function separateLogs(insertStr) {
-  const logSeparator = !insertStr
-    ? `--------------------------------------------------------------------------`
-    : `---------------------------------------------------------------[${insertStr}]--`
+  const inputStr = insertStr ? `[ ${insertStr} ]==` : ''
+  const line = BASE_LINE.slice(inputStr.length)
+  const logSeparator = `${line}${inputStr}`
   console.log(nowLocaleFormatted(), logSeparator)
   return logSeparator
 }
 
-export function logWhere(loc_mod, loc_fun) {
-  return !loc_mod ? loc_fun : !loc_fun ? loc_mod : `${loc_mod} . ${loc_fun}`
+export const logWhere = (loc_mod, loc_fun) => (!loc_mod ? loc_fun : !loc_fun ? loc_mod : `${loc_mod} . ${loc_fun}`)
+export const displayStr = (loc_mod, loc_fun, msg) => {
+  try {
+    return `[ ${logWhere(loc_mod, loc_fun)} ] ${msg || '<-'}`
+  } catch {
+    return `[ ${logWhere(loc_mod, loc_fun)} ] ${beautify(msg, 2) || '<-'}`
+  }
 }
 
-export function displayStr(loc_mod, loc_fun, msg) {
-  return `[ ${logWhere(loc_mod, loc_fun)} ] ${msg !== '' ? msg : '<-'}`
-}
-export function consoleLog(loc_mod, loc_fun, msg) {
+export const consoleLog = (loc_mod, loc_fun, msg) =>
   console.log(nowLocaleFormatted(), '.debug.', displayStr(loc_mod, loc_fun, msg))
-}
 
-export function consoleErr(loc_mod, loc_fun, msg) {
-  const errMsg = msg.err || msg
-  console.error(nowLocaleFormatted(), '.error.', displayStr(loc_mod, loc_fun, errMsg))
-}
+export const consoleErr = (loc_mod, loc_fun, msg) =>
+  console.error(nowLocaleFormatted(), '.error.', displayStr(loc_mod, loc_fun, msg?.err || msg))

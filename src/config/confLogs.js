@@ -21,6 +21,7 @@ import { existsSync, mkdirSync } from 'fs'
 // -----------------------------------------------------------------------------
 // Internal dependencies
 // -----------------------------------------------------------------------------
+import { join } from 'path'
 import { LOG_DATE_FORMAT, consoleErr, consoleLog, nowLocaleFormatted } from '../utils/jsUtils.js'
 import { APP_NAME, LOG_DIR, LOG_LVL, OUT_LOG, SYMLINK_NAME } from './confSystem.js'
 
@@ -111,7 +112,7 @@ const logOutputs = {
     zippedArchive: true,
     format: formatFileLogs,
   }),
-  /* 
+  /*
   // - Write all logs with level `error` and below to `error.log`
   error: new winston.transports.File({
     name: 'errorLogs',
@@ -124,7 +125,7 @@ const logOutputs = {
   */
   ffError: new winstonTransports.File({
     name: 'ffLogs',
-    filename: `${LOG_DIR}/${errorDBLogsFileName}`,
+    filename: join(LOG_DIR, errorDBLogsFileName),
     level: 'error',
     maxsize: MAX_SIZE,
     maxFiles: 2,
@@ -144,7 +145,7 @@ export const logger = createLogger({
   transports: [logOutputs.console, logOutputs.datedFile, logOutputs.combined],
 })
 
-/* 
+/*
   function extractErrorFromFastifyMsg(msg) {
     try {
       return msg.split('err: ')[1].split('\n')
