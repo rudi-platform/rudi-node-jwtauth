@@ -20,10 +20,23 @@ import {
 // -----------------------------------------------------------------------------
 import { logD, logW } from '../utils/logging.js'
 
-import { DEFAULT_EXP, PROFILES, PRV_KEY, PUB_KEY } from '../config/confSystem.js'
-import { BadRequestError, NotFoundError, UnauthorizedError } from '../utils/errors.js'
-import { isEmptyObject, nowEpochS } from '../utils/jsUtils.js'
+import axios from 'axios'
+import {
+  DEFAULT_EXP,
+  getKeyIdForCatalog,
+  getKeyIdForStorage,
+  getStorageUrl,
+  getUsrIdForStorage,
+  PROFILES,
+  PRV_KEY,
+  PUB_KEY,
+} from '../config/confSystem.js'
+import { BadRequestError, createRudiHttpError, NotFoundError, UnauthorizedError } from '../utils/errors.js'
+import { beautify, isEmptyObject, timeEpochS } from '../utils/jsUtils.js'
 
+// -----------------------------------------------------------------------------
+// JWT Constants
+// -----------------------------------------------------------------------------
 export const JWT_ID = 'jti' // https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.7
 export const JWT_EXP = 'exp' // Expiration Time https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4
 export const JWT_SUB = 'sub' // Subject https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2
@@ -35,6 +48,14 @@ export const REQ_URL = 'req_url'
 
 export const JWT_KEY = 'key' // Used when 'sub' is needed in the JWT and does not correspond to the key in profiles
 
+// -----------------------------------------------------------------------------
+// Local Constants
+// -----------------------------------------------------------------------------
+const KEYS = {}
+const PRVK = 'prvk'
+const PUBK = 'pubk'
+
+const STORAGE = 'RUDI Storage'
 // -----------------------------------------------------------------------------
 // Controllers
 // -----------------------------------------------------------------------------
@@ -113,42 +134,113 @@ export function getHashAlgo(algo) {
  * @param {*} reply
  * @returns
  */
-export const forgeJwt = (req, reply) => createRudiApiToken(req.body)
+export const forgeJwt = (req, reply) => createRudiJwt(req.body)
 
-export function createRudiApiToken(jwtPayload) {
-  const fun = 'createRudiApiToken'
+const checkPayload = (jwtPayload) => {
+  if (!jwtPayload || isEmptyObject(jwtPayload)) throw new BadRequestError(`Incoming JSON should not be null`)
+
+  // Identifying the requester asking for a token
+  const subject = jwtPayload[JWT_KEY] || jwtPayload[JWT_SUB]
+  if (!subject) throw new BadRequestError(`No ID was found for the requester (property '${JWT_KEY} or ${JWT_SUB}')`)
+  return subject
+}
+
+function isJwtValid(jwt) {
+  if (!jwt) return false
+  const jwtParts = tokenStringToJwtObject(jwt)
+  return jwtParts?.payload?.exp > timeEpochS()
+}
+
+export async function createRudiJwt(jwtPayload) {
+  const fun = 'createRudiJwt'
   logD(mod, fun, ``)
   try {
-    if (!jwtPayload || isEmptyObject(jwtPayload))
-      throw new BadRequestError(`Incoming JSON should not be null`)
-
-    // Identifying the requester asking for a token
-    const subject = jwtPayload[JWT_KEY] || jwtPayload[JWT_SUB]
-    if (!subject)
-      throw new BadRequestError(
-        `No ID was found for the requester (property '${JWT_KEY} or ${JWT_SUB}')`
-      )
-
-    const prvKey = getKeyInfo(subject, PRVK)
-
-    // Adjusting the JWT payload
-    if (!jwtPayload[JWT_IAT]) jwtPayload[JWT_IAT] = nowEpochS()
-    if (!jwtPayload[JWT_EXP]) jwtPayload[JWT_EXP] = DEFAULT_EXP
-
-    // Setting an ID to the JWT, if needed
-    if (!jwtPayload[JWT_ID]) jwtPayload[JWT_ID] = uuidv4()
-
-    return forgeToken(prvKey, {}, jwtPayload)
+    if (!jwtPayload?.target || jwtPayload.target == 'catalog') return getCatalogJwt()
+    return getStorageJwt(jwtPayload)
   } catch (err) {
     logW(mod, fun, err)
     throw err
   }
 }
+const _cached_jwts = { catalog: {}, storage: {} }
 
-const KEYS = {}
-const PRVK = 'prvk'
-const PUBK = 'pubk'
+const getCatalogJwt = (jwtPayload) => {
+  const sub = checkPayload(jwtPayload)
+  const cachedJwt = _cached_jwts.catalog[sub]
+  if (isJwtValid(cachedJwt)) return cachedJwt
+  const prvKey = getKeyInfo(sub, PRVK)
 
+  const body = {
+    jti: jwtPayload?.jti || uuidv4(),
+    iat: timeEpochS(),
+    exp: jwtPayload?.exp || timeEpochS(jwtPayload?.exp_time || DEFAULT_EXP),
+    sub,
+    client_id: jwtPayload?.client_id || getKeyIdForCatalog(),
+    req_mtd: 'all',
+    req_url: 'all',
+  }
+  const newJwt = forgeToken(prvKey, {}, body)
+  _cached_jwts.catalog[sub] = newJwt
+  return newJwt
+}
+
+const getStorageHeaders = () => {
+  const fun = 'getStorageHeaders'
+  logD(mod, fun, ``)
+  const keyId = getKeyIdForStorage()
+  const usrId = getUsrIdForStorage()
+
+  let reqJwt = _cached_jwts.storage[keyId]
+  if (!isJwtValid(reqJwt)) {
+    const prvKey = getKeyInfo(keyId, PRVK)
+
+    const body = {
+      jti: uuidv4(),
+      iat: timeEpochS(),
+      exp: timeEpochS(DEFAULT_EXP),
+      sub: 'auth',
+      client_id: keyId,
+    }
+    // logD(mod, fun, `body: ${beautify(body, 2)}`)
+
+    reqJwt = forgeToken(prvKey, {}, body)
+    _cached_jwts.storage[keyId] = reqJwt
+  }
+  const headers = { headers: { Authorization: `Bearer ${reqJwt}`, 'Content-Type': 'application/json' } }
+  return headers
+}
+
+const getStorageJwt = async (jwtPayload) => {
+  const fun = 'getStorageJwt'
+  logD(mod, fun, ``)
+  const storageHeaders = getStorageHeaders()
+  const delegationBody = {
+    user_id: jwtPayload?.user_id ?? getUsrIdForStorage(),
+    user_name: jwtPayload?.user_name ?? getKeyIdForStorage(),
+    group_name: jwtPayload?.group_name ?? 'producer',
+  }
+  const storageForgeJwtUrl = getStorageUrl('jwt/forge')
+
+  let mediaRes
+  try {
+    mediaRes = await axios.post(storageForgeJwtUrl, delegationBody, storageHeaders)
+  } catch (err) {
+    logW(mod, fun, beautify(err, 2))
+    if (err.code === 'ECONNREFUSED')
+      throw createRudiHttpError(
+        500,
+        `Connection to “${STORAGE}” module on ${storageForgeJwtUrl} failed: “${STORAGE}” module is apparently down, contact the RUDI node admin`
+      )
+    throw createRudiHttpError(err.status || 500, err.message || err)
+  }
+  if (!mediaRes) throw Error(`No answer received from ${STORAGE} module`)
+  if (!mediaRes?.data?.token)
+    throw new Error(`Unexpected response from ${STORAGE} while forging a token: ${mediaRes.data}`)
+
+  // logD(mod, fun, `storageJwt: ${mediaRes.data.token}`)
+
+  return mediaRes.data.token
+}
 /**
  * Returns both the private key and the algo
  * @param {string} subject
@@ -165,19 +257,13 @@ function getKeyInfo(subject, keyType = PUBK) {
     if (!KEYS[subject]) KEYS[subject] = {}
     if (keyType == PRVK) {
       const prvKeyPath = subjectInfo[PRV_KEY]
-      if (!prvKeyPath)
-        throw new NotFoundError(
-          `Property ${PRV_KEY} not found in profiles for subject: '${subject}'`
-        )
+      if (!prvKeyPath) throw new NotFoundError(`Property ${PRV_KEY} not found in profiles for subject: '${subject}'`)
       const prvKeyPem = readPrivateKeyFile(prvKeyPath)
       KEYS[subject][PRVK] = prvKeyPem
       return prvKeyPem
     } else {
       const pubKeyPath = subjectInfo[PUB_KEY]
-      if (!pubKeyPath)
-        throw new NotFoundError(
-          `Property ${PUB_KEY} not found in profiles for subject: '${subject}'`
-        )
+      if (!pubKeyPath) throw new NotFoundError(`Property ${PUB_KEY} not found in profiles for subject: '${subject}'`)
       const pubKeyPem = readPublicKeyFile(pubKeyPath)
       KEYS[subject][PUBK] = pubKeyPem
       return pubKeyPem
@@ -199,8 +285,7 @@ export function checkJwt(req, reply) {
     // Identify the subject
     const jwtPayload = tokenStringToJwtObject(token)?.payload
     const subject = jwtPayload[JWT_KEY] || jwtPayload[JWT_SUB]
-    if (!subject)
-      throw new UnauthorizedError(`No ID was found for the requester (property '${JWT_SUB}')`)
+    if (!subject) throw new UnauthorizedError(`No ID was found for the requester (property '${JWT_SUB}')`)
 
     // Retrieve the public key
     const pubKey = getKeyInfo(subject, PUBK)

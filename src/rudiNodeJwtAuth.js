@@ -8,7 +8,7 @@ const mod = 'main'
 import { URL_JWT, URL_PREFIX } from './config/confApi.js'
 import { beautify, separateLogs } from './utils/jsUtils.js'
 
-import { APP_NAME, LISTENING_ADDR, LISTENING_PORT } from './config/confSystem.js'
+import { APP_NAME, getHost, LISTENING_ADDR, LISTENING_PORT } from './config/confSystem.js'
 
 import { initFFLogger } from './config/confLogs.js'
 import { logD, logE, logI, logRequest, logW } from './utils/logging.js'
@@ -117,14 +117,11 @@ const start = async () => {
 export const runRudiJwtAuth = () =>
   start()
     .then(() => {
-      logI(mod, 'server', 'Ready')
+      logD(mod, '', 'Ready')
       const appHash = getAppHash()
       const gitHash = getGitHash()
-      const hashMsg =
-        appHash === gitHash
-          ? `Application version '${appHash}'`
-          : `App version '${appHash}' | Git version: '${gitHash}''`
-      logI(mod, 'app', hashMsg)
+      if (appHash === gitHash) logI(mod, '', `App '${APP_NAME}' version '${appHash}' listening on ${getHost()}`)
+      else logW(`App version '${appHash}' ≠ Git version: '${gitHash}'`)
       separateLogs('Init OK')
     })
     .catch((err) => logE(mod, 'server', `Crashed: ${err}`))
