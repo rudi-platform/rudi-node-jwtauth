@@ -35,12 +35,12 @@ export const fastifyConf = fastify({
 fastifyConf.setErrorHandler((error, request, reply) => {
   const fun = 'finalErrorHandler'
   try {
-    logE(mod, fun, error)
     const rudiHttpError = createRudiHttpError(error.statusCode, error.message)
+    logW(mod, fun, rudiHttpError)
     reply.code(rudiHttpError.statusCode).send(rudiHttpError)
   } catch (uncaughtErr) {
-    logW(mod, fun, uncaughtErr)
-    const rudiHttpError = createRudiHttpError(0, uncaughtErr.message)
+    logE(mod, fun, uncaughtErr)
+    const rudiHttpError = createRudiHttpError(0, uncaughtErr.message ?? uncaughtErr)
     reply.code(rudiHttpError.statusCode).send(rudiHttpError)
   }
   logD(mod, fun, 'done')

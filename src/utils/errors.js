@@ -14,7 +14,7 @@ export class RudiHttpError extends Error {
     this.name = name || 'Internal Server Error'
     this.error = description || 'An unexpected error occured'
   }
-  toString = () => `Error ${this.statusCode} (${this.name}): ${this.message}`
+  toString = () => `Error ${this.statusCode} ${this.name}: ${this.message}`
 
   toJSON = () => ({
     statusCode: this.statusCode,
@@ -51,23 +51,13 @@ export class NotFoundError extends RudiHttpError {
 
 export class MethodNotAllowedError extends RudiHttpError {
   constructor(errMessage) {
-    super(
-      errMessage,
-      405,
-      'Method Not Allowed',
-      'Request method is not supported for the requested resource'
-    )
+    super(errMessage, 405, 'Method Not Allowed', 'Request method is not supported for the requested resource')
   }
 }
 
 export class NotAcceptableError extends RudiHttpError {
   constructor(errMessage) {
-    super(
-      errMessage,
-      406,
-      'Not Acceptable',
-      'Headers sent in the request are not compatible with the service'
-    )
+    super(errMessage, 406, 'Not Acceptable', 'Headers sent in the request are not compatible with the service')
   }
 }
 

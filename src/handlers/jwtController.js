@@ -32,7 +32,7 @@ import {
   PUB_KEY,
 } from '../config/confSystem.js'
 import { BadRequestError, createRudiHttpError, NotFoundError, UnauthorizedError } from '../utils/errors.js'
-import { beautify, isEmptyObject, timeEpochS } from '../utils/jsUtils.js'
+import { beautify, isEmptyObject, pathJoin, timeEpochS } from '../utils/jsUtils.js'
 
 // -----------------------------------------------------------------------------
 // JWT Constants
@@ -155,7 +155,7 @@ export async function createRudiJwt(jwtPayload) {
   const fun = 'createRudiJwt'
   logD(mod, fun, ``)
   try {
-    if (!jwtPayload?.target || jwtPayload.target == 'catalog') return getCatalogJwt()
+    if (!jwtPayload?.target || jwtPayload.target == 'catalog') return getCatalogJwt(jwtPayload)
     return getStorageJwt(jwtPayload)
   } catch (err) {
     logW(mod, fun, err)
@@ -218,7 +218,10 @@ const getStorageJwt = async (jwtPayload) => {
     user_name: jwtPayload?.user_name ?? getKeyIdForStorage(),
     group_name: jwtPayload?.group_name ?? 'producer',
   }
-  const storageForgeJwtUrl = getStorageUrl('jwt/forge')
+  const storageUrl = jwtPayload.url ?? getStorageUrl()
+  const storageForgeJwtUrl = storageUrl.endsWith('jwt/forge')
+    ? storageUrl
+    : pathJoin(storageUrl ?? getStorageUrl(), 'jwt/forge')
 
   let mediaRes
   try {
