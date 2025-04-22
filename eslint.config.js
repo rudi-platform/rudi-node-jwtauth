@@ -36,10 +36,7 @@ export default [
       quotes: ['error', 'single', { allowTemplateLiterals: true }],
       'prefer-arrow-callback': 'warn',
       'prettier/prettier': 'warn',
-      'space-before-function-paren': [
-        'error',
-        { anonymous: 'always', named: 'never', asyncArrow: 'always' },
-      ],
+      'space-before-function-paren': ['error', { anonymous: 'always', named: 'never', asyncArrow: 'always' }],
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'warn',

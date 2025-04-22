@@ -34,6 +34,27 @@ export function convertEncoding(data, fromEncoding, toEncoding) {
   }
 }
 
+/**
+ * Joins several string chunks with the first argument the function is called with.
+ * This is basically the reverse of the String split function, with the difference that we make sure
+ * the merging character is not duplicated
+ * @param {string} sep separator we want to merge the string chunks with
+ * @param {...string} args string chunks to be joined
+ * @return {string}
+ */
+const mergeStrings = (sep, ...args) => {
+  const argNb = args.length
+  if (argNb == 0 || args[0] === undefined || args[0] === null) return ''
+  let accumulatedStr = `${args[0]}`
+  for (let i = 1; i < argNb; i++) {
+    if (args[i] === undefined || args[i] === null) break
+    const newChunk = `${args[i]}`
+    const cleanChunk = newChunk.startsWith(sep) ? newChunk.slice(1) : newChunk
+    accumulatedStr = accumulatedStr.endsWith(sep) ? accumulatedStr + cleanChunk : accumulatedStr + sep + cleanChunk
+  }
+  return accumulatedStr
+}
+export const pathJoin = (...args) => mergeStrings('/', ...args)
 // -----------------------------------------------------------------------------
 // Dates
 // -----------------------------------------------------------------------------

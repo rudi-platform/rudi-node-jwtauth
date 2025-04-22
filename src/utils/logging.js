@@ -31,5 +31,4 @@ export const logD = (mod, fun, msg) => logger.debug(displayStr(mod, fun, msg))
 // Request inspector
 // -----------------------------------------------------------------------------
 
-export const logRequest = (req, res) =>
-  logI('http', 'request', `${req.method} ${req.url} <- ${req.ip} `)
+export const logRequest = (req, res) => logI('http', 'request', `${req.method} ${req.url} <- ${req.ip} `)

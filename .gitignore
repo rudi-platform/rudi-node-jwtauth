@@ -1,6 +1,5 @@
 # Config
-**/custom.ini
-**/*custom.ini
+**/*custom.*
 
 # Generated
 **/node_modules
