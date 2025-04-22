@@ -142,6 +142,7 @@ const checkPayload = (jwtPayload) => {
   // Identifying the requester asking for a token
   const subject = jwtPayload[JWT_KEY] || jwtPayload[JWT_SUB]
   if (!subject) throw new BadRequestError(`No ID was found for the requester (property '${JWT_KEY} or ${JWT_SUB}')`)
+  logD(mod, 'checkPayload', `subject: ${subject}`)
   return subject
 }
 
