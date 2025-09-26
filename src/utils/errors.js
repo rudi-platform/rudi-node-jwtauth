@@ -1,5 +1,7 @@
 'use strict'
 
+import { beautify, isString } from './jsUtils.js'
+
 const mod = 'errors'
 
 // -----------------------------------------------------------------------------
@@ -9,6 +11,11 @@ const DEFAULT_MESSAGE = 'Rudi producer node - API Server Error'
 
 export class RudiHttpError extends Error {
   constructor(message, code, name, description) {
+    try {
+      if (!isString(message)) message = beautify(message)
+    } catch {
+      // message
+    }
     super(message || DEFAULT_MESSAGE)
     this.statusCode = code || 500
     this.name = name || 'Internal Server Error'
