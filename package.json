@@ -20,28 +20,29 @@
     "prettify": "prettier  -w \"**/*.js\""
   },
   "dependencies": {
-    "@aqmo.org/jwt-lib": "^1.1.14",
-    "axios": "^1.12.2",
-    "date-and-time": "^3.6.0",
-    "fastify": "^5.6.1",
-    "ini": "^5.0.0",
-    "lodash": "^4.17.21",
+    "@aqmo.org/jwt-lib": "^1.1.15",
+    "axios": "^1.18.0",
+    "date-and-time": "^4.5.0",
+    "fastify": "^5.8.5",
+    "ini": "^7.0.0",
+    "lodash": "^4.18.1",
     "minimist": "^1.2.8",
-    "uuid": "^11.1.0",
-    "winston": "^3.17.0",
+    "uuid": "^14.0.0",
+    "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.4",
-    "@babel/eslint-parser": "^7.28.4",
-    "@babel/preset-env": "^7.28.3",
+    "@babel/core": "^7.29.7",
+    "@babel/eslint-parser": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
     "braces": "^3.0.3",
-    "eslint": "^9.36.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-unused-imports": "^4.2.0",
-    "nodemon": "^3.1.10",
-    "prettier": "^3.6.2"
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "nodemon": "^3.1.14",
+    "npm-check-updates": "^22.2.3",
+    "prettier": "^3.8.4"
   },
   "overrides": {
     "braces": "$braces"

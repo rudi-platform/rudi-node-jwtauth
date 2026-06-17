@@ -6,13 +6,12 @@ const mod = 'utils'
 // -----------------------------------------------------------------------------
 // External dependancies
 // -----------------------------------------------------------------------------
-import _ from 'lodash'
+import _ from 'lodash';
 const { floor } = _
 
-import datetime from 'date-and-time'
-const { format: dateFormat } = datetime
+import { format } from 'date-and-time';
 
-import { inspect } from 'util'
+import { inspect } from 'util';
 
 // -----------------------------------------------------------------------------
 // String
@@ -70,7 +69,7 @@ export const dateEpochMsToIso = (utcMs) => new Date(utcMs).toISOString()
 
 export const LOG_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss SSS'
 
-export const nowLocaleFormatted = () => dateFormat(new Date(), LOG_DATE_FORMAT)
+export const nowLocaleFormatted = () => format(new Date(), LOG_DATE_FORMAT)
 
 // -----------------------------------------------------------------------------
 // Arrays

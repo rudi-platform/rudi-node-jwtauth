@@ -29,7 +29,7 @@ export const fastifyConf = fastify({
     logger: initFFLogger(APP_NAME),
     // file: sys.OUT_LOG
   },
-  ignoreTrailingSlash: true,
+  routerOptions: { ignoreTrailingSlash: true },
 })
 
 fastifyConf.setErrorHandler((error, request, reply) => {
