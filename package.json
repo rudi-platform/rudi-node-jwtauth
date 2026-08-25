@@ -32,16 +32,16 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/eslint-parser": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/core": "^8.0.1",
+    "@babel/eslint-parser": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
     "braces": "^3.0.3",
-    "eslint": "^9.39.5",
-    "eslint-config-prettier": "^9.1.2",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-unused-imports": "^4.4.1",
     "nodemon": "^3.1.14",
-    "npm-check-updates": "^22.2.9",
+    "npm-check-updates": "^23.1.0",
     "prettier": "^3.9.6"
   },
   "overrides": {
