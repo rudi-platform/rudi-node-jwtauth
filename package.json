@@ -21,9 +21,9 @@
   },
   "dependencies": {
     "@aqmo.org/jwt-lib": "^1.1.15",
-    "axios": "^1.19.0",
-    "date-and-time": "^4.5.1",
-    "fastify": "^5.12.1",
+    "axios": "^1.20.0",
+    "date-and-time": "^4.5.2",
+    "fastify": "^5.12.5",
     "ini": "^7.0.0",
     "lodash": "^4.18.1",
     "minimist": "^1.2.8",
@@ -32,17 +32,17 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.1",
-    "@babel/eslint-parser": "^8.0.1",
-    "@babel/preset-env": "^8.0.2",
+    "@babel/core": "^8.0.5",
+    "@babel/eslint-parser": "^8.0.5",
+    "@babel/preset-env": "^8.0.5",
     "braces": "^3.0.3",
-    "eslint": "^10.9.1",
+    "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-unused-imports": "^4.4.1",
     "nodemon": "^3.1.14",
     "npm-check-updates": "^23.1.0",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.8"
   },
   "overrides": {
     "braces": "$braces"
