@@ -34,18 +34,18 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.1.0",
-    "@babel/eslint-parser": "^8.0.7",
+    "@babel/core": "^8.1.2",
+    "@babel/eslint-parser": "^8.1.2",
     "@babel/preset-env": "^8.0.7",
     "chokidar": "^5.0.0",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-unused-imports": "^4.4.1",
-    "minimatch": "^11.0.5",
+    "minimatch": "^11.0.8",
     "nodemon": "^3.1.14",
     "npm-check-updates": "^23.1.1",
-    "prettier": "^3.9.10"
+    "prettier": "^3.10.1"
   },
   "overrides": {
     "chokidar": "$chokidar",
